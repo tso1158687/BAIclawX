@@ -9,11 +9,11 @@ import { brand } from '../brand';
 export const PROVIDER_DEFINITIONS: ProviderDefinition[] = [
   {
     id: 'ainft',
-    name: 'AINFT',
-    displayName: 'AINFT',
+    name: 'BANK OF AI',
+    displayName: 'BANK OF AI',
     icon: '🧠',
     placeholder: 'sk-ainft-...',
-    model: 'AINFT',
+    model: 'BANK OF AI',
     requiresApiKey: true,
     docsUrl: brand.docsUrl,
     authMode: 'api_key',

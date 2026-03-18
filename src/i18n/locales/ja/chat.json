@@ -2,10 +2,10 @@
     "gatewayNotRunning": "ゲートウェイが停止中",
     "gatewayRequired": "チャットを利用するには OpenClaw ゲートウェイが実行されている必要があります。自動的に起動するか、設定から起動できます。",
     "providerGate": {
-        "missingTitle": "チャットの前に AINFT を設定してください",
-        "missingDescription": "AINFT アカウントを追加し、既定のモデルプロバイダーに設定するとチャットを利用できます。",
-        "defaultRequiredTitle": "既定のプロバイダーを AINFT に切り替えてください",
-        "defaultRequiredDescription": "現在の BAIclaw チャットは AINFT のみ対応しています。Models を開き、AINFT アカウントを既定のプロバイダーに設定してください。",
+        "missingTitle": "チャットの前に BANK OF AI を設定してください",
+        "missingDescription": "BANK OF AI アカウントを追加し、既定のモデルプロバイダーに設定するとチャットを利用できます。",
+        "defaultRequiredTitle": "既定のプロバイダーを BANK OF AI に切り替えてください",
+        "defaultRequiredDescription": "現在の BAIclaw チャットは BANK OF AI のみ対応しています。Models を開き、BANK OF AI アカウントを既定のプロバイダーに設定してください。",
         "openModels": "Models を開く"
     },
     "welcome": {
@@ -29,9 +29,9 @@
         "pickAgent": "Agent を選択",
         "pickModel": "モデルを選択: {{model}}",
         "modelPickerTitle": "モデルを選択",
-        "modelPickerLoading": "AINFT の利用可能モデルを読み込み中...",
+        "modelPickerLoading": "BANK OF AI の利用可能モデルを読み込み中...",
         "modelPickerEmpty": "現在選択可能なモデルがありません。",
-        "modelPickerMissingConfig": "利用可能な AINFT API キーまたは Base URL が見つかりません。",
+        "modelPickerMissingConfig": "利用可能な BANK OF AI API キーまたは Base URL が見つかりません。",
         "modelPickerError": "モデルの読み込みに失敗しました: {{error}}",
         "refreshModels": "モデルを更新",
         "clearTarget": "送信先 Agent をクリア",

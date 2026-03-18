@@ -22,7 +22,7 @@ describe('provider metadata', () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 'ainft',
-          name: 'AINFT',
+          name: 'BANK OF AI',
           requiresApiKey: true,
           showBaseUrl: true,
           showModelId: true,

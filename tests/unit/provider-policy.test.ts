@@ -11,7 +11,7 @@ function buildAccount(overrides: Partial<ProviderAccount>): ProviderAccount {
   return {
     id: 'account-1',
     vendorId: 'ainft',
-    label: 'AINFT',
+    label: 'BANK OF AI',
     authMode: 'api_key',
     baseUrl: 'https://api.bankofai.io/v1',
     model: 'gpt-5.2',
@@ -24,7 +24,7 @@ function buildAccount(overrides: Partial<ProviderAccount>): ProviderAccount {
 }
 
 describe('provider policy', () => {
-  it('limits visible providers to AINFT', () => {
+  it('limits visible providers to BANK OF AI', () => {
     expect(VISIBLE_PROVIDER_TYPES).toEqual(['ainft']);
     expect(filterVisibleProviderTypeInfo(PROVIDER_TYPE_INFO).map((provider) => provider.id)).toEqual(['ainft']);
   });
@@ -36,7 +36,7 @@ describe('provider policy', () => {
     ]).map((account) => account.id)).toEqual(['ainft-1']);
   });
 
-  it('blocks chat when default provider is not AINFT', () => {
+  it('blocks chat when default provider is not BANK OF AI', () => {
     const accounts = [
       buildAccount({ id: 'ainft-1', vendorId: 'ainft' }),
       buildAccount({ id: 'openai-1', vendorId: 'openai' }),

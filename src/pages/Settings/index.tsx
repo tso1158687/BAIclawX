@@ -2,7 +2,7 @@
  * Settings Page
  * Application configuration
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Sun,
   Moon,
@@ -41,6 +41,7 @@ import { SUPPORTED_LANGUAGES } from '@/i18n';
 import { hostApiFetch } from '@/lib/host-api';
 import { cn } from '@/lib/utils';
 import { brand, getBrandExternalUrl } from '@/lib/brand';
+import heroImage from '@/assets/hero.png';
 type ControlUiInfo = {
   url: string;
   token: string;
@@ -95,6 +96,9 @@ export function Settings() {
   const [wsDiagnosticEnabled, setWsDiagnosticEnabled] = useState(false);
   const [showTelemetryViewer, setShowTelemetryViewer] = useState(false);
   const [telemetryEntries, setTelemetryEntries] = useState<UiTelemetryEntry[]>([]);
+  const [showHeroEasterEgg, setShowHeroEasterEgg] = useState(false);
+  const versionTapCountRef = useRef(0);
+  const versionTapTimerRef = useRef<number | null>(null);
 
   const isWindows = window.electron.platform === 'win32';
   const showCliTools = true;
@@ -201,6 +205,34 @@ export function Settings() {
       toast.error(`Failed to copy doctor output: ${String(error)}`);
     }
   };
+
+  const handleVersionTap = () => {
+    if (versionTapTimerRef.current) {
+      window.clearTimeout(versionTapTimerRef.current);
+    }
+
+    versionTapCountRef.current += 1;
+
+    if (versionTapCountRef.current >= 5) {
+      versionTapCountRef.current = 0;
+      versionTapTimerRef.current = null;
+      setShowHeroEasterEgg(true);
+      return;
+    }
+
+    versionTapTimerRef.current = window.setTimeout(() => {
+      versionTapCountRef.current = 0;
+      versionTapTimerRef.current = null;
+    }, 60 * 1000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (versionTapTimerRef.current) {
+        window.clearTimeout(versionTapTimerRef.current);
+      }
+    };
+  }, []);
 
 
 
@@ -1046,7 +1078,13 @@ export function Settings() {
                 <strong className="text-foreground font-semibold">{brand.displayName}</strong> - {t('about.tagline')}
               </p>
               <p>{t('about.basedOn')}</p>
-              <p>{t('about.version', { version: currentVersion })}</p>
+              <button
+                type="button"
+                className="inline-flex w-fit rounded-md px-1 py-0.5 -mx-1 -my-0.5 transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                onClick={handleVersionTap}
+              >
+                {t('about.version', { version: currentVersion })}
+              </button>
               <div className="flex gap-4 pt-3">
                 <Button
                   variant="link"
@@ -1068,6 +1106,54 @@ export function Settings() {
 
         </div>
       </div>
+
+      {showHeroEasterEgg && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="hero-easter-egg-title"
+          onClick={() => setShowHeroEasterEgg(false)}
+        >
+          <div
+            className="w-full max-w-xl overflow-hidden rounded-3xl border border-white/10 bg-[#111111] shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="relative flex items-center justify-center bg-black">
+              <img
+                src={heroImage}
+                alt="Hero easter egg"
+                className="max-h-[28rem] w-full object-contain"
+              />
+              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#111111] to-transparent" />
+            </div>
+
+            <div className="space-y-4 p-6">
+              <div className="space-y-2">
+                <p className="text-[11px] uppercase tracking-[0.28em] text-white/45">
+                  Hidden Message
+                </p>
+                <h3 id="hero-easter-egg-title" className="text-2xl font-semibold text-white">
+                  I am not a hero but I served with heroes
+                </h3>
+                <p className="text-base leading-7 text-white/72">
+                  我不是英雄但我與英雄並肩作戰
+                </p>
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  variant="secondary"
+                  className="bg-white text-black hover:bg-white/90"
+                  onClick={() => setShowHeroEasterEgg(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

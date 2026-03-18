@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { pickPreferredAinftModelId } from '@/lib/ainft-models';
 
-describe('AINFT model selection', () => {
+describe('BANK OF AI model selection', () => {
   it('prefers a latest ChatGPT model when available', () => {
     expect(
       pickPreferredAinftModelId([

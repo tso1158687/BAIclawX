@@ -126,11 +126,11 @@ export interface ProviderAccount {
 export const PROVIDER_TYPE_INFO: ProviderTypeInfo[] = [
   {
     id: 'ainft',
-    name: 'AINFT',
-    displayName: 'AINFT',
+    name: 'BANK OF AI',
+    displayName: 'BANK OF AI',
     icon: '🧠',
     placeholder: 'sk-ainft-...',
-    model: 'AINFT',
+    model: 'BANK OF AI',
     requiresApiKey: true,
     authMode: 'api_key',
     baseUrlMode: 'hidden',
