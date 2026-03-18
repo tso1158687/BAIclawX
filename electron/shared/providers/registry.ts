@@ -27,7 +27,7 @@ export const PROVIDER_DEFINITIONS: ProviderDefinition[] = [
     modelIdPlaceholder: 'ainft-chat',
     category: 'compatible',
     envVar: 'AINFT_API_KEY',
-    defaultModelId: 'gpt-5.2',
+    defaultModelId: 'MiniMax-M2.5',
     supportedAuthModes: ['api_key'],
     defaultAuthMode: 'api_key',
     supportsMultipleAccounts: true,

@@ -106,7 +106,7 @@ import {
   shouldInvertInDark,
   shouldShowProviderModelId,
 } from '@/lib/providers';
-import { fetchAinftModels, pickPreferredAinftModelId, type AinftModelOption } from '@/lib/ainft-models';
+import { fetchAinftModels, pickPreferredAinftModelId, resolvePreferredAinftModelId, type AinftModelOption } from '@/lib/ainft-models';
 import { filterVisibleProviderTypeInfo } from '@/lib/provider-policy';
 import {
   buildProviderAccountId,
@@ -1095,11 +1095,17 @@ function ProviderContent({
         setKeyValid(true);
       }
 
-      const effectiveModelId = resolveProviderModelForSave(
-        selectedProviderData,
-        modelId,
-        devModeUnlocked
-      );
+      const effectiveModelId = selectedProvider === 'ainft'
+        ? await resolvePreferredAinftModelId({
+            apiKey: apiKey.trim(),
+            baseUrl: baseUrl.trim() || selectedProviderData?.defaultBaseUrl || '',
+            fallbackModelId: selectedProviderData?.defaultModelId,
+          })
+        : resolveProviderModelForSave(
+            selectedProviderData,
+            modelId,
+            devModeUnlocked
+          );
       const snapshot = await fetchProviderSnapshot();
       const accountIdForSave = buildProviderAccountId(
         selectedProvider as ProviderType,

@@ -10,6 +10,7 @@ const ROOT = join(__dirname, '..');
 const MANIFEST_PATH = join(ROOT, 'resources', 'skills', 'preinstalled-manifest.json');
 const OUTPUT_ROOT = join(ROOT, 'build', 'preinstalled-skills');
 const TMP_ROOT = join(ROOT, 'build', '.tmp-preinstalled-skills');
+const CACHE_ROOT = join(ROOT, 'build', '.cache-preinstalled-skills');
 
 function loadManifest() {
   if (!existsSync(MANIFEST_PATH)) {
@@ -45,17 +46,38 @@ function createRepoDirName(repo, ref) {
 
 async function fetchSparseRepo(repo, ref, paths, checkoutDir) {
   const remote = `https://github.com/${repo}.git`;
+  const repoExists = existsSync(join(checkoutDir, '.git'));
+
   mkdirSync(checkoutDir, { recursive: true });
 
-  await $`git init ${checkoutDir}`;
-  await $`git -C ${checkoutDir} remote add origin ${remote}`;
-  await $`git -C ${checkoutDir} sparse-checkout init --cone`;
-  await $`git -C ${checkoutDir} sparse-checkout set ${paths}`;
-  await $`git -C ${checkoutDir} fetch --depth 1 origin ${ref}`;
-  await $`git -C ${checkoutDir} checkout FETCH_HEAD`;
+  if (!repoExists) {
+    await $`git init ${checkoutDir}`;
+    await $`git -C ${checkoutDir} remote add origin ${remote}`;
+    await $`git -C ${checkoutDir} sparse-checkout init --cone`;
+  }
 
-  const commit = (await $`git -C ${checkoutDir} rev-parse HEAD`).stdout.trim();
-  return commit;
+  await $`git -C ${checkoutDir} sparse-checkout set ${paths}`;
+
+  try {
+    await $`git -C ${checkoutDir} fetch --depth 1 origin ${ref}`;
+    await $`git -C ${checkoutDir} checkout FETCH_HEAD`;
+    return {
+      commit: (await $`git -C ${checkoutDir} rev-parse HEAD`).stdout.trim(),
+      source: 'remote',
+    };
+  } catch (error) {
+    const hasCachedHead = existsSync(join(checkoutDir, '.git', 'HEAD'));
+    const hasAllPaths = paths.every((path) => existsSync(join(checkoutDir, path)));
+    if (!hasCachedHead || !hasAllPaths) {
+      throw error;
+    }
+
+    echo`   WARN fetch failed for ${repo} @ ${ref}; reusing cached checkout`;
+    return {
+      commit: (await $`git -C ${checkoutDir} rev-parse HEAD`).stdout.trim(),
+      source: 'cache',
+    };
+  }
 }
 
 echo`Bundling preinstalled skills...`;
@@ -65,6 +87,7 @@ rmSync(OUTPUT_ROOT, { recursive: true, force: true });
 mkdirSync(OUTPUT_ROOT, { recursive: true });
 rmSync(TMP_ROOT, { recursive: true, force: true });
 mkdirSync(TMP_ROOT, { recursive: true });
+mkdirSync(CACHE_ROOT, { recursive: true });
 
 const lock = {
   generatedAt: new Date().toISOString(),
@@ -73,12 +96,14 @@ const lock = {
 
 const groups = groupByRepoRef(manifestSkills);
 for (const group of groups) {
+  const cacheRepoDir = join(CACHE_ROOT, createRepoDirName(group.repo, group.ref));
   const repoDir = join(TMP_ROOT, createRepoDirName(group.repo, group.ref));
   const sparsePaths = [...new Set(group.entries.map((entry) => entry.repoPath))];
 
   echo`Fetching ${group.repo} @ ${group.ref}`;
-  const commit = await fetchSparseRepo(group.repo, group.ref, sparsePaths, repoDir);
-  echo`   commit ${commit}`;
+  const { commit, source } = await fetchSparseRepo(group.repo, group.ref, sparsePaths, cacheRepoDir);
+  echo`   commit ${commit} (${source})`;
+  cpSync(cacheRepoDir, repoDir, { recursive: true, dereference: false });
 
   for (const entry of group.entries) {
     const sourceDir = join(repoDir, entry.repoPath);

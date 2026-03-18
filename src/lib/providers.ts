@@ -141,7 +141,7 @@ export const PROVIDER_TYPE_INFO: ProviderTypeInfo[] = [
     showBaseUrl: false,
     showModelId: false,
     modelIdPlaceholder: 'ainft-chat',
-    defaultModelId: 'gpt-5.2',
+    defaultModelId: 'MiniMax-M2.5',
     docsUrl: brand.docsUrl,
     sortOrder: 0,
   },

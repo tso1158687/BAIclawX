@@ -56,7 +56,7 @@ import { useSettingsStore } from '@/stores/settings';
 import { hostApiFetch } from '@/lib/host-api';
 import { subscribeHostEvent } from '@/lib/host-events';
 import { brandHeadingStyle } from '@/lib/brand';
-import { fetchAinftModels, pickPreferredAinftModelId, type AinftModelOption } from '@/lib/ainft-models';
+import { fetchAinftModels, pickPreferredAinftModelId, resolvePreferredAinftModelId, type AinftModelOption } from '@/lib/ainft-models';
 import {
   filterVisibleProviderAccounts,
   filterVisibleProviderStatuses,
@@ -1238,6 +1238,14 @@ function AddProviderDialog({
         return;
       }
 
+      const resolvedModel = selectedType === 'ainft'
+        ? await resolvePreferredAinftModelId({
+            apiKey: apiKey.trim(),
+            baseUrl: baseUrl.trim() || typeInfo?.defaultBaseUrl || '',
+            fallbackModelId: typeInfo?.defaultModelId,
+          })
+        : resolveProviderModelForSave(typeInfo, modelId, devModeUnlocked);
+
       await onAdd(
         selectedType,
         name || (typeInfo?.id === 'custom' ? t('aiProviders.custom') : typeInfo?.name) || selectedType,
@@ -1245,7 +1253,7 @@ function AddProviderDialog({
         {
           baseUrl: baseUrl.trim() || undefined,
           apiProtocol: selectedType === 'custom' ? apiProtocol : undefined,
-          model: resolveProviderModelForSave(typeInfo, modelId, devModeUnlocked),
+          model: resolvedModel,
           authMode: useOAuthFlow ? (preferredOAuthMode || 'oauth_device') : selectedType === 'ollama'
             ? 'local'
             : (isOAuth && supportsApiKey && authMode === 'apikey')

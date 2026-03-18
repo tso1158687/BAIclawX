@@ -30,13 +30,15 @@ export async function fetchAinftModels(input: {
 function getChatGptPriority(modelId: string): number {
   const id = modelId.toLowerCase();
 
-  if (id.includes('chatgpt') && id.includes('latest')) return 0;
-  if (id.includes('gpt-5')) return 1;
-  if (id.includes('chatgpt')) return 2;
-  if (id.includes('gpt-4.1')) return 3;
-  if (id.includes('gpt-4o')) return 4;
-  if (id.includes('gpt-4')) return 5;
-  if (id.includes('gpt-3.5')) return 6;
+  if (id === 'minimax-m2.5' || id.includes('minimax-m2.5')) return 0;
+  if (id.includes('minimax') && id.includes('m2.5')) return 1;
+  if (id.includes('chatgpt') && id.includes('latest')) return 2;
+  if (id.includes('gpt-5')) return 3;
+  if (id.includes('chatgpt')) return 4;
+  if (id.includes('gpt-4.1')) return 5;
+  if (id.includes('gpt-4o')) return 6;
+  if (id.includes('gpt-4')) return 7;
+  if (id.includes('gpt-3.5')) return 8;
   return Number.MAX_SAFE_INTEGER;
 }
 
@@ -63,4 +65,20 @@ export function pickPreferredAinftModelId(models: AinftModelOption[]): string | 
   }
 
   return models[0]?.id;
+}
+
+export async function resolvePreferredAinftModelId(input: {
+  apiKey: string;
+  baseUrl: string;
+  fallbackModelId?: string;
+}): Promise<string | undefined> {
+  try {
+    const models = await fetchAinftModels({
+      apiKey: input.apiKey,
+      baseUrl: input.baseUrl,
+    });
+    return pickPreferredAinftModelId(models) || input.fallbackModelId;
+  } catch {
+    return input.fallbackModelId;
+  }
 }

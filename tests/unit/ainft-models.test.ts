@@ -2,17 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { pickPreferredAinftModelId } from '@/lib/ainft-models';
 
 describe('BANK OF AI model selection', () => {
-  it('prefers a latest ChatGPT model when available', () => {
+  it('prefers MiniMax-M2.5 when available', () => {
     expect(
       pickPreferredAinftModelId([
-        { id: 'gpt-4.1-mini', displayName: 'GPT-4.1 Mini' },
-        { id: 'chatgpt-4o-latest', displayName: 'ChatGPT Latest' },
+        { id: 'gpt-5.2', displayName: 'GPT-5.2' },
+        { id: 'MiniMax-M2.5', displayName: 'MiniMax M2.5' },
         { id: 'gpt-5', displayName: 'GPT-5' },
       ]),
-    ).toBe('chatgpt-4o-latest');
+    ).toBe('MiniMax-M2.5');
   });
 
-  it('falls back to the first model when there is no clear ChatGPT match', () => {
+  it('falls back to the first model when MiniMax-M2.5 is unavailable', () => {
     expect(
       pickPreferredAinftModelId([
         { id: 'deepseek-chat', displayName: 'DeepSeek Chat' },
