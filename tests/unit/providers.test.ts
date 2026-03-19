@@ -15,13 +15,13 @@ import {
 } from '@electron/utils/provider-registry';
 
 describe('provider metadata', () => {
-  it('includes ainft in the frontend provider registry and keeps it first', () => {
-    expect(PROVIDER_TYPES[0]).toBe('ainft');
+  it('includes bankofai in the frontend provider registry and keeps it first', () => {
+    expect(PROVIDER_TYPES[0]).toBe('bankofai');
 
     expect(PROVIDER_TYPE_INFO).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 'ainft',
+          id: 'bankofai',
           name: 'BANK OF AI',
           requiresApiKey: true,
           showBaseUrl: true,
@@ -34,13 +34,13 @@ describe('provider metadata', () => {
     );
   });
 
-  it('includes ainft in the backend provider registry', () => {
-    expect(BUILTIN_PROVIDER_TYPES).toContain('ainft');
-    expect(getProviderEnvVar('ainft')).toBe('AINFT_API_KEY');
-    expect(getProviderConfig('ainft')).toEqual({
+  it('includes bankofai in the backend provider registry', () => {
+    expect(BUILTIN_PROVIDER_TYPES).toContain('bankofai');
+    expect(getProviderEnvVar('bankofai')).toBe('BANKOFAI_API_KEY');
+    expect(getProviderConfig('bankofai')).toEqual({
       baseUrl: 'https://api.bankofai.io/v1',
       api: 'openai-completions',
-      apiKeyEnv: 'AINFT_API_KEY',
+      apiKeyEnv: 'BANKOFAI_API_KEY',
     });
   });
 
@@ -84,7 +84,7 @@ describe('provider metadata', () => {
 
   it('keeps builtin provider sources in sync', () => {
     expect(BUILTIN_PROVIDER_TYPES).toEqual(
-      expect.arrayContaining(['ainft', 'anthropic', 'openai', 'google', 'openrouter', 'ark', 'moonshot', 'siliconflow', 'minimax-portal', 'minimax-portal-cn', 'qwen-portal', 'ollama'])
+      expect.arrayContaining(['bankofai', 'anthropic', 'openai', 'google', 'openrouter', 'ark', 'moonshot', 'siliconflow', 'minimax-portal', 'minimax-portal-cn', 'qwen-portal', 'ollama'])
     );
   });
 
@@ -103,7 +103,7 @@ describe('provider metadata', () => {
   });
 
   it('exposes provider documentation links', () => {
-    const ainft = PROVIDER_TYPE_INFO.find((provider) => provider.id === 'ainft');
+    const bankofai = PROVIDER_TYPE_INFO.find((provider) => provider.id === 'bankofai');
     const anthropic = PROVIDER_TYPE_INFO.find((provider) => provider.id === 'anthropic');
     const openrouter = PROVIDER_TYPE_INFO.find((provider) => provider.id === 'openrouter');
     const moonshot = PROVIDER_TYPE_INFO.find((provider) => provider.id === 'moonshot');
@@ -111,13 +111,13 @@ describe('provider metadata', () => {
     const ark = PROVIDER_TYPE_INFO.find((provider) => provider.id === 'ark');
     const custom = PROVIDER_TYPE_INFO.find((provider) => provider.id === 'custom');
 
-    expect(ainft).toMatchObject({
+    expect(bankofai).toMatchObject({
       docsUrl: 'https://b.ai',
     });
     expect(anthropic).toMatchObject({
       docsUrl: 'https://platform.claude.com/docs/en/api/overview',
     });
-    expect(getProviderDocsUrl(ainft, 'en')).toBe('https://b.ai');
+    expect(getProviderDocsUrl(bankofai, 'en')).toBe('https://b.ai');
     expect(getProviderDocsUrl(anthropic, 'en')).toBe('https://platform.claude.com/docs/en/api/overview');
     expect(getProviderDocsUrl(openrouter, 'en')).toBe('https://openrouter.ai/models');
     expect(getProviderDocsUrl(moonshot, 'en')).toBe('https://platform.moonshot.cn/');

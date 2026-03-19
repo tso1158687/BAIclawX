@@ -1,24 +1,24 @@
 import { hostApiFetch } from './host-api';
 
-export interface AinftModelOption {
+export interface BankOfAiModelOption {
   id: string;
   displayName: string;
 }
 
-export async function fetchAinftModels(input: {
+export async function fetchBankOfAiModels(input: {
   apiKey: string;
   baseUrl: string;
-}): Promise<AinftModelOption[]> {
+}): Promise<BankOfAiModelOption[]> {
   const apiKey = input.apiKey.trim();
   const baseUrl = input.baseUrl.trim();
   if (!apiKey || !baseUrl) {
     return [];
   }
 
-  const response = await hostApiFetch<{ models?: AinftModelOption[] }>('/api/provider-models/discover', {
+  const response = await hostApiFetch<{ models?: BankOfAiModelOption[] }>('/api/provider-models/discover', {
     method: 'POST',
     body: JSON.stringify({
-      providerId: 'ainft',
+      providerId: 'bankofai',
       apiKey,
       baseUrl,
     }),
@@ -42,7 +42,7 @@ function getChatGptPriority(modelId: string): number {
   return Number.MAX_SAFE_INTEGER;
 }
 
-export function pickPreferredAinftModelId(models: AinftModelOption[]): string | undefined {
+export function pickPreferredBankOfAiModelId(models: BankOfAiModelOption[]): string | undefined {
   if (models.length === 0) {
     return undefined;
   }
@@ -67,17 +67,17 @@ export function pickPreferredAinftModelId(models: AinftModelOption[]): string | 
   return models[0]?.id;
 }
 
-export async function resolvePreferredAinftModelId(input: {
+export async function resolvePreferredBankOfAiModelId(input: {
   apiKey: string;
   baseUrl: string;
   fallbackModelId?: string;
 }): Promise<string | undefined> {
   try {
-    const models = await fetchAinftModels({
+    const models = await fetchBankOfAiModels({
       apiKey: input.apiKey,
       baseUrl: input.baseUrl,
     });
-    return pickPreferredAinftModelId(models) || input.fallbackModelId;
+    return pickPreferredBankOfAiModelId(models) || input.fallbackModelId;
   } catch {
     return input.fallbackModelId;
   }

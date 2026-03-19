@@ -2,7 +2,7 @@ import { providerIcons } from '@/assets/providers';
 import { brand } from './brand';
 
 export const PROVIDER_TYPES = [
-  'ainft',
+  'bankofai',
   'anthropic',
   'openai',
   'google',
@@ -19,7 +19,7 @@ export const PROVIDER_TYPES = [
 export type ProviderType = (typeof PROVIDER_TYPES)[number];
 
 export const BUILTIN_PROVIDER_TYPES = [
-  'ainft',
+  'bankofai',
   'anthropic',
   'openai',
   'google',
@@ -125,11 +125,11 @@ export interface ProviderAccount {
 
 export const PROVIDER_TYPE_INFO: ProviderTypeInfo[] = [
   {
-    id: 'ainft',
+    id: 'bankofai',
     name: 'BANK OF AI',
     displayName: 'BANK OF AI',
     icon: '🧠',
-    placeholder: 'sk-ainft-...',
+    placeholder: 'sk-bankofai-...',
     model: 'BANK OF AI',
     requiresApiKey: true,
     authMode: 'api_key',
@@ -140,7 +140,7 @@ export const PROVIDER_TYPE_INFO: ProviderTypeInfo[] = [
     defaultBaseUrl: 'https://api.bankofai.io/v1',
     showBaseUrl: false,
     showModelId: false,
-    modelIdPlaceholder: 'ainft-chat',
+    modelIdPlaceholder: 'bankofai-chat',
     defaultModelId: 'MiniMax-M2.5',
     docsUrl: brand.docsUrl,
     sortOrder: 0,

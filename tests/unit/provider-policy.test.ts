@@ -10,7 +10,7 @@ import { PROVIDER_TYPE_INFO, type ProviderAccount } from '@/lib/providers';
 function buildAccount(overrides: Partial<ProviderAccount>): ProviderAccount {
   return {
     id: 'account-1',
-    vendorId: 'ainft',
+    vendorId: 'bankofai',
     label: 'BANK OF AI',
     authMode: 'api_key',
     baseUrl: 'https://api.bankofai.io/v1',
@@ -25,20 +25,20 @@ function buildAccount(overrides: Partial<ProviderAccount>): ProviderAccount {
 
 describe('provider policy', () => {
   it('limits visible providers to BANK OF AI', () => {
-    expect(VISIBLE_PROVIDER_TYPES).toEqual(['ainft']);
-    expect(filterVisibleProviderTypeInfo(PROVIDER_TYPE_INFO).map((provider) => provider.id)).toEqual(['ainft']);
+    expect(VISIBLE_PROVIDER_TYPES).toEqual(['bankofai']);
+    expect(filterVisibleProviderTypeInfo(PROVIDER_TYPE_INFO).map((provider) => provider.id)).toEqual(['bankofai']);
   });
 
   it('filters hidden provider accounts from product UI', () => {
     expect(filterVisibleProviderAccounts([
-      buildAccount({ id: 'ainft-1', vendorId: 'ainft' }),
+      buildAccount({ id: 'bankofai-1', vendorId: 'bankofai' }),
       buildAccount({ id: 'openai-1', vendorId: 'openai' }),
-    ]).map((account) => account.id)).toEqual(['ainft-1']);
+    ]).map((account) => account.id)).toEqual(['bankofai-1']);
   });
 
   it('blocks chat when default provider is not BANK OF AI', () => {
     const accounts = [
-      buildAccount({ id: 'ainft-1', vendorId: 'ainft' }),
+      buildAccount({ id: 'bankofai-1', vendorId: 'bankofai' }),
       buildAccount({ id: 'openai-1', vendorId: 'openai' }),
     ];
 
@@ -46,7 +46,7 @@ describe('provider policy', () => {
       blocked: true,
       reason: 'default_not_allowed',
     });
-    expect(getChatProviderGate(accounts, 'ainft-1')).toEqual({
+    expect(getChatProviderGate(accounts, 'bankofai-1')).toEqual({
       blocked: false,
       reason: null,
     });

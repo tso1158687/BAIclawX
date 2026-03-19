@@ -8,11 +8,11 @@ import { brand } from '../brand';
 
 export const PROVIDER_DEFINITIONS: ProviderDefinition[] = [
   {
-    id: 'ainft',
+    id: 'bankofai',
     name: 'BANK OF AI',
     displayName: 'BANK OF AI',
     icon: '🧠',
-    placeholder: 'sk-ainft-...',
+    placeholder: 'sk-bankofai-...',
     model: 'BANK OF AI',
     requiresApiKey: true,
     docsUrl: brand.docsUrl,
@@ -24,9 +24,9 @@ export const PROVIDER_DEFINITIONS: ProviderDefinition[] = [
     defaultBaseUrl: 'https://api.bankofai.io/v1',
     showBaseUrl: false,
     showModelId: false,
-    modelIdPlaceholder: 'ainft-chat',
+    modelIdPlaceholder: 'bankofai-chat',
     category: 'compatible',
-    envVar: 'AINFT_API_KEY',
+    envVar: 'BANKOFAI_API_KEY',
     defaultModelId: 'MiniMax-M2.5',
     supportedAuthModes: ['api_key'],
     defaultAuthMode: 'api_key',
@@ -35,7 +35,7 @@ export const PROVIDER_DEFINITIONS: ProviderDefinition[] = [
     providerConfig: {
       baseUrl: 'https://api.bankofai.io/v1',
       api: 'openai-completions',
-      apiKeyEnv: 'AINFT_API_KEY',
+      apiKeyEnv: 'BANKOFAI_API_KEY',
     },
   },
   {

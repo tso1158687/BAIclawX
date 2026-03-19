@@ -6,8 +6,8 @@ import type {
   ProviderWithKeyInfo,
 } from './providers';
 
-export const VISIBLE_PROVIDER_TYPES = ['ainft'] as const;
-export const REQUIRED_CHAT_PROVIDER: ProviderType = 'ainft';
+export const VISIBLE_PROVIDER_TYPES = ['bankofai'] as const;
+export const REQUIRED_CHAT_PROVIDER: ProviderType = 'bankofai';
 
 export type VisibleProviderType = (typeof VISIBLE_PROVIDER_TYPES)[number];
 export type ChatProviderGateReason = 'missing_required_provider' | 'default_not_allowed';

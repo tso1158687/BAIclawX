@@ -1,5 +1,5 @@
 export const PROVIDER_TYPES = [
-  'ainft',
+  'bankofai',
   'anthropic',
   'openai',
   'google',
@@ -15,7 +15,7 @@ export const PROVIDER_TYPES = [
 ] as const;
 
 export const BUILTIN_PROVIDER_TYPES = [
-  'ainft',
+  'bankofai',
   'anthropic',
   'openai',
   'google',

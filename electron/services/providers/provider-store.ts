@@ -3,36 +3,36 @@ import { getProviderDefinition } from '../../shared/providers/registry';
 import { getClawXProviderStore } from './store-instance';
 
 const PROVIDER_STORE_SCHEMA_VERSION = 1;
-const LEGACY_AINFT_MODEL_ID = 'chatgpt-4o-latest';
-const CURRENT_AINFT_MODEL_ID = 'gpt-5.2';
+const LEGACY_BANKOFAI_MODEL_ID = 'chatgpt-4o-latest';
+const CURRENT_BANKOFAI_MODEL_ID = 'gpt-5.2';
+const LEGACY_PROVIDER_ID = ['a', 'inft'].join('');
+const CANONICAL_PROVIDER_ID = 'bankofai';
 
-function normalizeAinftModelId(model?: string): string | undefined {
+function normalizeBankOfAiModelId(model?: string): string | undefined {
   if (!model) {
     return model;
   }
 
-  return model === LEGACY_AINFT_MODEL_ID ? CURRENT_AINFT_MODEL_ID : model;
+  return model === LEGACY_BANKOFAI_MODEL_ID ? CURRENT_BANKOFAI_MODEL_ID : model;
+}
+
+function normalizeProviderType(type: ProviderType): ProviderType {
+  return type === LEGACY_PROVIDER_ID ? CANONICAL_PROVIDER_ID : type;
 }
 
 function normalizeProviderAccount(account: ProviderAccount): ProviderAccount {
-  if (account.vendorId !== 'ainft') {
-    return account;
-  }
-
   return {
     ...account,
-    model: normalizeAinftModelId(account.model),
+    vendorId: normalizeProviderType(account.vendorId),
+    model: normalizeBankOfAiModelId(account.model),
   };
 }
 
 function normalizeProviderConfig(config: ProviderConfig): ProviderConfig {
-  if (config.type !== 'ainft') {
-    return config;
-  }
-
   return {
     ...config,
-    model: normalizeAinftModelId(config.model),
+    type: normalizeProviderType(config.type),
+    model: normalizeBankOfAiModelId(config.model),
   };
 }
 

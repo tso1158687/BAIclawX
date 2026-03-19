@@ -1,4 +1,5 @@
 import anthropic from './anthropic.svg';
+import bankofai from './bankofai.svg';
 import openai from './openai.svg';
 import google from './google.svg';
 import openrouter from './openrouter.svg';
@@ -11,6 +12,7 @@ import ollama from './ollama.svg';
 import custom from './custom.svg';
 
 export const providerIcons: Record<string, string> = {
+    bankofai,
     anthropic,
     openai,
     google,

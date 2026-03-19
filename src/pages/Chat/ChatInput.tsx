@@ -19,7 +19,7 @@ import { useChatStore } from '@/stores/chat';
 import { useProviderStore } from '@/stores/providers';
 import type { AgentSummary } from '@/types/agent';
 import { useTranslation } from 'react-i18next';
-import { fetchAinftModels, type AinftModelOption } from '@/lib/ainft-models';
+import { fetchBankOfAiModels, type BankOfAiModelOption } from '@/lib/bankofai-models';
 import { getProviderTypeInfo } from '@/lib/providers';
 
 // ── Types ────────────────────────────────────────────────────────
@@ -94,10 +94,10 @@ export function ChatInput({ onSend, onStop, disabled = false, sending = false, i
   const [targetAgentId, setTargetAgentId] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [modelPickerOpen, setModelPickerOpen] = useState(false);
-  const [modelOptions, setModelOptions] = useState<AinftModelOption[]>([]);
+  const [modelOptions, setModelOptions] = useState<BankOfAiModelOption[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
-  const [ainftApiKey, setAinftApiKey] = useState<string | null>(null);
+  const [bankOfAiApiKey, setBankOfAiApiKey] = useState<string | null>(null);
   const [switchingModelId, setSwitchingModelId] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -123,23 +123,23 @@ export function ChatInput({ onSend, onStop, disabled = false, sending = false, i
     [agents, targetAgentId],
   );
   const showAgentPicker = mentionableAgents.length > 0;
-  const ainftProviderInfo = useMemo(() => getProviderTypeInfo('ainft'), []);
-  const activeAinftAccount = useMemo(() => {
+  const bankOfAiProviderInfo = useMemo(() => getProviderTypeInfo('bankofai'), []);
+  const activeBankOfAiAccount = useMemo(() => {
     const defaultAccount = providerAccounts.find((account) => account.id === defaultAccountId) ?? null;
-    if (defaultAccount?.vendorId === 'ainft') {
+    if (defaultAccount?.vendorId === 'bankofai') {
       return defaultAccount;
     }
 
-    return providerAccounts.find((account) => account.vendorId === 'ainft' && account.isDefault) ?? null;
+    return providerAccounts.find((account) => account.vendorId === 'bankofai' && account.isDefault) ?? null;
   }, [providerAccounts, defaultAccountId]);
-  const activeAinftBaseUrl = activeAinftAccount?.baseUrl?.trim()
-    || ainftProviderInfo?.defaultBaseUrl
+  const activeBankOfAiBaseUrl = activeBankOfAiAccount?.baseUrl?.trim()
+    || bankOfAiProviderInfo?.defaultBaseUrl
     || 'https://api.bankofai.io/v1';
-  const selectedModelId = activeAinftAccount?.model?.trim()
-    || ainftProviderInfo?.defaultModelId
+  const selectedModelId = activeBankOfAiAccount?.model?.trim()
+    || bankOfAiProviderInfo?.defaultModelId
     || 'gpt-5.2';
   const selectedModelLabel = modelOptions.find((model) => model.id === selectedModelId)?.displayName || selectedModelId;
-  const canPickModel = Boolean(activeAinftAccount) && !disabled;
+  const canPickModel = Boolean(activeBankOfAiAccount) && !disabled;
 
   // Auto-resize textarea
   useEffect(() => {
@@ -186,8 +186,8 @@ export function ChatInput({ onSend, onStop, disabled = false, sending = false, i
   }, [pickerOpen, modelPickerOpen]);
 
   useEffect(() => {
-    if (!activeAinftAccount) {
-      setAinftApiKey(null);
+    if (!activeBankOfAiAccount) {
+      setBankOfAiApiKey(null);
       setModelOptions([]);
       setModelsError(null);
       setModelPickerOpen(false);
@@ -195,19 +195,19 @@ export function ChatInput({ onSend, onStop, disabled = false, sending = false, i
     }
 
     let cancelled = false;
-    void getAccountApiKey(activeAinftAccount.id).then((apiKey) => {
+    void getAccountApiKey(activeBankOfAiAccount.id).then((apiKey) => {
       if (!cancelled) {
-        setAinftApiKey(apiKey);
+        setBankOfAiApiKey(apiKey);
       }
     });
 
     return () => {
       cancelled = true;
     };
-  }, [activeAinftAccount, getAccountApiKey]);
+  }, [activeBankOfAiAccount, getAccountApiKey]);
 
-  const loadAinftModels = useCallback(async () => {
-    if (!activeAinftAccount || !ainftApiKey?.trim() || !activeAinftBaseUrl.trim()) {
+  const loadBankOfAiModels = useCallback(async () => {
+    if (!activeBankOfAiAccount || !bankOfAiApiKey?.trim() || !activeBankOfAiBaseUrl.trim()) {
       setModelOptions([]);
       setModelsError(t('composer.modelPickerMissingConfig'));
       return;
@@ -217,9 +217,9 @@ export function ChatInput({ onSend, onStop, disabled = false, sending = false, i
     setModelsError(null);
 
     try {
-      const models = await fetchAinftModels({
-        apiKey: ainftApiKey,
-        baseUrl: activeAinftBaseUrl,
+      const models = await fetchBankOfAiModels({
+        apiKey: bankOfAiApiKey,
+        baseUrl: activeBankOfAiBaseUrl,
       });
 
       setModelOptions(models);
@@ -231,30 +231,30 @@ export function ChatInput({ onSend, onStop, disabled = false, sending = false, i
     } finally {
       setModelsLoading(false);
     }
-  }, [activeAinftAccount, ainftApiKey, activeAinftBaseUrl, t]);
+  }, [activeBankOfAiAccount, bankOfAiApiKey, activeBankOfAiBaseUrl, t]);
 
   useEffect(() => {
-    if (modelPickerOpen && activeAinftAccount && !modelsLoading && modelOptions.length === 0 && !modelsError) {
-      void loadAinftModels();
+    if (modelPickerOpen && activeBankOfAiAccount && !modelsLoading && modelOptions.length === 0 && !modelsError) {
+      void loadBankOfAiModels();
     }
-  }, [activeAinftAccount, loadAinftModels, modelOptions.length, modelPickerOpen, modelsError, modelsLoading]);
+  }, [activeBankOfAiAccount, loadBankOfAiModels, modelOptions.length, modelPickerOpen, modelsError, modelsLoading]);
 
   const handleModelSelect = useCallback(async (modelId: string) => {
-    if (!activeAinftAccount || modelId === selectedModelId) {
+    if (!activeBankOfAiAccount || modelId === selectedModelId) {
       setModelPickerOpen(false);
       return;
     }
 
     setSwitchingModelId(modelId);
     try {
-      await updateAccount(activeAinftAccount.id, {
+      await updateAccount(activeBankOfAiAccount.id, {
         model: modelId,
       });
       setModelPickerOpen(false);
     } finally {
       setSwitchingModelId(null);
     }
-  }, [activeAinftAccount, selectedModelId, updateAccount]);
+  }, [activeBankOfAiAccount, selectedModelId, updateAccount]);
 
   // ── File staging via native dialog ─────────────────────────────
 
@@ -619,7 +619,7 @@ export function ChatInput({ onSend, onStop, disabled = false, sending = false, i
                       variant="ghost"
                       size="sm"
                       className="h-8 rounded-full px-2 text-muted-foreground"
-                      onClick={() => void loadAinftModels()}
+                      onClick={() => void loadBankOfAiModels()}
                       disabled={modelsLoading || switchingModelId !== null}
                       title={t('composer.refreshModels')}
                     >
@@ -643,6 +643,7 @@ export function ChatInput({ onSend, onStop, disabled = false, sending = false, i
                       modelOptions.map((model) => {
                         const selected = model.id === selectedModelId;
                         const switching = model.id === switchingModelId;
+                        const showModelId = model.displayName !== model.id;
                         return (
                           <button
                             key={model.id}
@@ -656,7 +657,9 @@ export function ChatInput({ onSend, onStop, disabled = false, sending = false, i
                           >
                             <div className="min-w-0">
                               <div className="truncate font-medium">{model.displayName}</div>
-                              <div className="truncate text-xs text-muted-foreground">{model.id}</div>
+                              {showModelId ? (
+                                <div className="truncate text-xs text-muted-foreground">{model.id}</div>
+                              ) : null}
                             </div>
                             {switching ? (
                               <Loader2 className="h-4 w-4 shrink-0 animate-spin" />

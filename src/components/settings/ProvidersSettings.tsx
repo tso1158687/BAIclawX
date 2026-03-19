@@ -56,7 +56,7 @@ import { useSettingsStore } from '@/stores/settings';
 import { hostApiFetch } from '@/lib/host-api';
 import { subscribeHostEvent } from '@/lib/host-events';
 import { brandHeadingStyle } from '@/lib/brand';
-import { fetchAinftModels, pickPreferredAinftModelId, resolvePreferredAinftModelId, type AinftModelOption } from '@/lib/ainft-models';
+import { fetchBankOfAiModels, pickPreferredBankOfAiModelId, resolvePreferredBankOfAiModelId, type BankOfAiModelOption } from '@/lib/bankofai-models';
 import {
   filterVisibleProviderAccounts,
   filterVisibleProviderStatuses,
@@ -96,11 +96,11 @@ function fallbackModelsEqual(a?: string[], b?: string[]): boolean {
   return left.length === right.length && left.every((model, index) => model === right[index]);
 }
 
-function shouldUseAinftModelSelect(
+function shouldUseBankOfAiModelSelect(
   vendorId: ProviderType | string | null | undefined,
-  models: AinftModelOption[],
+  models: BankOfAiModelOption[],
 ): boolean {
-  return vendorId === 'ainft' && models.length > 0;
+  return vendorId === 'bankofai' && models.length > 0;
 }
 
 function getAuthModeLabel(
@@ -215,10 +215,10 @@ export function ProvidersSettings() {
         <h2 className="text-3xl font-serif text-foreground font-normal tracking-tight" style={brandHeadingStyle}>
           {t('aiProviders.title', 'AI Providers')}
         </h2>
-        <Button onClick={() => setShowAddDialog(true)} className="rounded-full px-5 h-9 shadow-none font-medium text-[13px]">
+        {/* <Button onClick={() => setShowAddDialog(true)} className="rounded-full px-5 h-9 shadow-none font-medium text-[13px]">
           <Plus className="h-4 w-4 mr-2" />
           {t('aiProviders.add')}
-        </Button>
+        </Button> */}
       </div>
 
       {loading ? (
@@ -339,7 +339,7 @@ function ProviderCard({
   const [validating, setValidating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [storedApiKey, setStoredApiKey] = useState<string>('');
-  const [modelOptions, setModelOptions] = useState<AinftModelOption[]>([]);
+  const [modelOptions, setModelOptions] = useState<BankOfAiModelOption[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
 
@@ -348,8 +348,8 @@ function ProviderCard({
   const showModelIdField = shouldShowProviderModelId(typeInfo, devModeUnlocked);
   const showBaseUrlField = shouldShowProviderBaseUrl(typeInfo);
   const canEditModelConfig = Boolean(showBaseUrlField || showModelIdField);
-  const canDiscoverAinftModels = account.vendorId === 'ainft' && !!baseUrl.trim();
-  const usesAinftModelSelect = shouldUseAinftModelSelect(account.vendorId, modelOptions);
+  const canDiscoverBankOfAiModels = account.vendorId === 'bankofai' && !!baseUrl.trim();
+  const usesBankOfAiModelSelect = shouldUseBankOfAiModelSelect(account.vendorId, modelOptions);
 
   useEffect(() => {
     if (isEditing) {
@@ -367,7 +367,7 @@ function ProviderCard({
   useEffect(() => {
     let cancelled = false;
 
-    if (!isEditing || account.vendorId !== 'ainft') {
+    if (!isEditing || account.vendorId !== 'bankofai') {
       setStoredApiKey('');
       setModelOptions([]);
       setModelsLoading(false);
@@ -398,7 +398,7 @@ function ProviderCard({
   }, [account.id, account.vendorId, isEditing]);
 
   useEffect(() => {
-    if (!isEditing || account.vendorId !== 'ainft') {
+    if (!isEditing || account.vendorId !== 'bankofai') {
       return;
     }
     setModelOptions([]);
@@ -408,24 +408,24 @@ function ProviderCard({
 
   const fallbackOptions = allProviders.filter((candidate) => candidate.account.id !== account.id);
 
-  const handleRefreshAinftModels = async () => {
+  const handleRefreshBankOfAiModels = async () => {
     const effectiveApiKey = newKey.trim() || storedApiKey.trim();
     const effectiveBaseUrl = baseUrl.trim();
     if (!effectiveApiKey || !effectiveBaseUrl) {
-      setModelsError(t('aiProviders.dialog.ainftModelsMissingConfig'));
+      setModelsError(t('aiProviders.dialog.bankofaiModelsMissingConfig'));
       return;
     }
 
     setModelsLoading(true);
     setModelsError(null);
     try {
-      const models = await fetchAinftModels({
+      const models = await fetchBankOfAiModels({
         apiKey: effectiveApiKey,
         baseUrl: effectiveBaseUrl,
       });
       setModelOptions(models);
       if (!modelId.trim() || !models.some((model) => model.id === modelId.trim())) {
-        setModelId(pickPreferredAinftModelId(models) || '');
+        setModelId(pickPreferredBankOfAiModelId(models) || '');
       }
     } catch (error) {
       setModelOptions([]);
@@ -658,13 +658,13 @@ function ProviderCard({
                 <div className="space-y-1.5 pt-2">
                   <div className="flex items-center justify-between gap-3">
                     <Label className={currentLabelClasses}>{t('aiProviders.dialog.modelId')}</Label>
-                    {account.vendorId === 'ainft' && (
+                    {account.vendorId === 'bankofai' && (
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => { void handleRefreshAinftModels(); }}
-                        disabled={modelsLoading || !canDiscoverAinftModels}
+                        onClick={() => { void handleRefreshBankOfAiModels(); }}
+                        disabled={modelsLoading || !canDiscoverBankOfAiModels}
                         className="h-7 rounded-full px-3 text-[12px]"
                       >
                         <RefreshCw className={cn('mr-1.5 h-3.5 w-3.5', modelsLoading && 'animate-spin')} />
@@ -672,7 +672,7 @@ function ProviderCard({
                       </Button>
                     )}
                   </div>
-                  {usesAinftModelSelect ? (
+                  {usesBankOfAiModelSelect ? (
                     <Select
                       value={modelId}
                       onChange={(e) => setModelId(e.target.value)}
@@ -692,13 +692,13 @@ function ProviderCard({
                       className={currentInputClasses}
                     />
                   )}
-                  {account.vendorId === 'ainft' && (
+                  {account.vendorId === 'bankofai' && (
                     <p className="text-[12px] text-muted-foreground">
                       {modelsError
-                        ? t('aiProviders.dialog.ainftModelsFailed', { error: modelsError })
+                        ? t('aiProviders.dialog.bankofaiModelsFailed', { error: modelsError })
                         : (modelsLoading
-                          ? t('aiProviders.dialog.ainftModelsLoading')
-                          : t('aiProviders.dialog.ainftModelsHint'))}
+                          ? t('aiProviders.dialog.bankofaiModelsLoading')
+                          : t('aiProviders.dialog.bankofaiModelsHint'))}
                     </p>
                   )}
                 </div>
@@ -921,7 +921,7 @@ function AddProviderDialog({
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [modelOptions, setModelOptions] = useState<AinftModelOption[]>([]);
+  const [modelOptions, setModelOptions] = useState<BankOfAiModelOption[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
 
@@ -951,8 +951,8 @@ function AddProviderDialog({
   const supportsApiKey = typeInfo?.supportsApiKey ?? false;
   const vendorMap = new Map(vendors.map((vendor) => [vendor.id, vendor]));
   const selectedVendor = selectedType ? vendorMap.get(selectedType) : undefined;
-  const canDiscoverAinftModels = selectedType === 'ainft' && !!apiKey.trim() && !!baseUrl.trim();
-  const usesAinftModelSelect = shouldUseAinftModelSelect(selectedType, modelOptions);
+  const canDiscoverBankOfAiModels = selectedType === 'bankofai' && !!apiKey.trim() && !!baseUrl.trim();
+  const usesBankOfAiModelSelect = shouldUseBankOfAiModelSelect(selectedType, modelOptions);
   const preferredOAuthMode = selectedVendor?.supportedAuthModes.includes('oauth_browser')
     ? 'oauth_browser'
     : (selectedVendor?.supportedAuthModes.includes('oauth_device')
@@ -969,7 +969,7 @@ function AddProviderDialog({
   }, [selectedVendor, isOAuth, supportsApiKey]);
 
   useEffect(() => {
-    if (selectedType !== 'ainft') {
+    if (selectedType !== 'bankofai') {
       setModelOptions([]);
       setModelsError(null);
       setModelsLoading(false);
@@ -988,7 +988,7 @@ function AddProviderDialog({
     const timer = window.setTimeout(() => {
       setModelsLoading(true);
       setModelsError(null);
-      void fetchAinftModels({
+      void fetchBankOfAiModels({
         apiKey: trimmedApiKey,
         baseUrl: trimmedBaseUrl,
       })
@@ -996,7 +996,7 @@ function AddProviderDialog({
           if (cancelled) return;
           setModelOptions(models);
           if (!modelId.trim() || !models.some((model) => model.id === modelId.trim())) {
-            setModelId(pickPreferredAinftModelId(models) || '');
+            setModelId(pickPreferredBankOfAiModelId(models) || '');
           }
         })
         .catch((error) => {
@@ -1153,24 +1153,24 @@ function AddProviderDialog({
     }
   };
 
-  const handleRefreshAinftModels = async () => {
+  const handleRefreshBankOfAiModels = async () => {
     const trimmedApiKey = apiKey.trim();
     const trimmedBaseUrl = baseUrl.trim();
     if (!trimmedApiKey || !trimmedBaseUrl) {
-      setModelsError(t('aiProviders.dialog.ainftModelsMissingConfig'));
+      setModelsError(t('aiProviders.dialog.bankofaiModelsMissingConfig'));
       return;
     }
 
     setModelsLoading(true);
     setModelsError(null);
     try {
-      const models = await fetchAinftModels({
+      const models = await fetchBankOfAiModels({
         apiKey: trimmedApiKey,
         baseUrl: trimmedBaseUrl,
       });
       setModelOptions(models);
       if (!modelId.trim() || !models.some((model) => model.id === modelId.trim())) {
-        setModelId(pickPreferredAinftModelId(models) || '');
+        setModelId(pickPreferredBankOfAiModelId(models) || '');
       }
     } catch (error) {
       setModelOptions([]);
@@ -1238,8 +1238,8 @@ function AddProviderDialog({
         return;
       }
 
-      const resolvedModel = selectedType === 'ainft'
-        ? await resolvePreferredAinftModelId({
+      const resolvedModel = selectedType === 'bankofai'
+        ? await resolvePreferredBankOfAiModelId({
             apiKey: apiKey.trim(),
             baseUrl: baseUrl.trim() || typeInfo?.defaultBaseUrl || '',
             fallbackModelId: typeInfo?.defaultModelId,
@@ -1355,7 +1355,7 @@ function AddProviderDialog({
               </div>
 
               <div className="space-y-6 bg-transparent p-0">
-                {selectedType !== 'ainft' && (
+                {selectedType !== 'bankofai' && (
                   <div className="space-y-2.5">
                   <Label htmlFor="name" className={labelClasses}>{t('aiProviders.dialog.displayName')}</Label>
                   <Input
@@ -1455,13 +1455,13 @@ function AddProviderDialog({
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between gap-3">
                       <Label htmlFor="modelId" className={labelClasses}>{t('aiProviders.dialog.modelId')}</Label>
-                      {selectedType === 'ainft' && (
+                      {selectedType === 'bankofai' && (
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          onClick={() => { void handleRefreshAinftModels(); }}
-                          disabled={modelsLoading || !canDiscoverAinftModels}
+                          onClick={() => { void handleRefreshBankOfAiModels(); }}
+                          disabled={modelsLoading || !canDiscoverBankOfAiModels}
                           className="h-7 rounded-full px-3 text-[12px]"
                         >
                           <RefreshCw className={cn('mr-1.5 h-3.5 w-3.5', modelsLoading && 'animate-spin')} />
@@ -1469,7 +1469,7 @@ function AddProviderDialog({
                         </Button>
                       )}
                     </div>
-                    {usesAinftModelSelect ? (
+                    {usesBankOfAiModelSelect ? (
                       <Select
                         id="modelId"
                         value={modelId}
@@ -1497,13 +1497,13 @@ function AddProviderDialog({
                         className={inputClasses}
                       />
                     )}
-                    {selectedType === 'ainft' && (
+                    {selectedType === 'bankofai' && (
                       <p className="text-[12px] text-muted-foreground">
                         {modelsError
-                          ? t('aiProviders.dialog.ainftModelsFailed', { error: modelsError })
+                          ? t('aiProviders.dialog.bankofaiModelsFailed', { error: modelsError })
                           : (modelsLoading
-                            ? t('aiProviders.dialog.ainftModelsLoading')
-                            : t('aiProviders.dialog.ainftModelsHint'))}
+                            ? t('aiProviders.dialog.bankofaiModelsLoading')
+                            : t('aiProviders.dialog.bankofaiModelsHint'))}
                       </p>
                     )}
                   </div>

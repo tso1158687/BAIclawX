@@ -106,7 +106,7 @@ import {
   shouldInvertInDark,
   shouldShowProviderModelId,
 } from '@/lib/providers';
-import { fetchAinftModels, pickPreferredAinftModelId, resolvePreferredAinftModelId, type AinftModelOption } from '@/lib/ainft-models';
+import { fetchBankOfAiModels, pickPreferredBankOfAiModelId, resolvePreferredBankOfAiModelId, type BankOfAiModelOption } from '@/lib/bankofai-models';
 import { filterVisibleProviderTypeInfo } from '@/lib/provider-policy';
 import {
   buildProviderAccountId,
@@ -727,7 +727,7 @@ function ProviderContent({
   const [baseUrl, setBaseUrl] = useState('');
   const [modelId, setModelId] = useState('');
   const [apiProtocol, setApiProtocol] = useState<ProviderAccount['apiProtocol']>('openai-completions');
-  const [modelOptions, setModelOptions] = useState<AinftModelOption[]>([]);
+  const [modelOptions, setModelOptions] = useState<BankOfAiModelOption[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
   const [providerMenuOpen, setProviderMenuOpen] = useState(false);
@@ -995,7 +995,7 @@ function ProviderContent({
   }, [providerMenuOpen]);
 
   useEffect(() => {
-    if (selectedProvider !== 'ainft') {
+    if (selectedProvider !== 'bankofai') {
       setModelOptions([]);
       setModelsError(null);
       setModelsLoading(false);
@@ -1006,24 +1006,24 @@ function ProviderContent({
     setModelsLoading(false);
   }, [selectedProvider]);
 
-  const handleRefreshAinftModels = async () => {
+  const handleRefreshBankOfAiModels = async () => {
     const trimmedApiKey = apiKey.trim();
     const trimmedBaseUrl = baseUrl.trim();
     if (!trimmedApiKey || !trimmedBaseUrl) {
-      setModelsError(t('provider.ainftModelsMissingConfig'));
+      setModelsError(t('provider.bankofaiModelsMissingConfig'));
       return;
     }
 
     setModelsLoading(true);
     setModelsError(null);
     try {
-      const models = await fetchAinftModels({
+      const models = await fetchBankOfAiModels({
         apiKey: trimmedApiKey,
         baseUrl: trimmedBaseUrl,
       });
       setModelOptions(models);
       if (!modelId.trim() || !models.some((model) => model.id === modelId.trim())) {
-        setModelId(pickPreferredAinftModelId(models) || '');
+        setModelId(pickPreferredBankOfAiModelId(models) || '');
       }
     } catch (error) {
       setModelOptions([]);
@@ -1035,6 +1035,12 @@ function ProviderContent({
 
   const selectedProviderData = providers.find((p) => p.id === selectedProvider);
   const providerDocsUrl = getProviderDocsUrl(selectedProviderData, i18n.language);
+  const selectedProviderLabel = selectedProviderData
+    ? (selectedProviderData.id === 'custom' ? t('settings:aiProviders.custom') : selectedProviderData.name)
+      + (selectedProviderData.model && selectedProviderData.model !== selectedProviderData.name
+        ? ` — ${selectedProviderData.model}`
+        : '')
+    : t('provider.selectPlaceholder');
   const selectedProviderIconUrl = selectedProviderData
     ? getProviderIconUrl(selectedProviderData.id)
     : undefined;
@@ -1044,8 +1050,8 @@ function ProviderContent({
   const isOAuth = selectedProviderData?.isOAuth ?? false;
   const supportsApiKey = selectedProviderData?.supportsApiKey ?? false;
   const useOAuthFlow = isOAuth && (!supportsApiKey || authMode === 'oauth');
-  const canDiscoverAinftModels = selectedProvider === 'ainft' && !!apiKey.trim() && !!baseUrl.trim();
-  const usesAinftModelSelect = selectedProvider === 'ainft' && modelOptions.length > 0;
+  const canDiscoverBankOfAiModels = selectedProvider === 'bankofai' && !!apiKey.trim() && !!baseUrl.trim();
+  const usesBankOfAiModelSelect = selectedProvider === 'bankofai' && modelOptions.length > 0;
 
   const handleValidateAndSave = async () => {
     if (!selectedProvider) return;
@@ -1095,8 +1101,8 @@ function ProviderContent({
         setKeyValid(true);
       }
 
-      const effectiveModelId = selectedProvider === 'ainft'
-        ? await resolvePreferredAinftModelId({
+      const effectiveModelId = selectedProvider === 'bankofai'
+        ? await resolvePreferredBankOfAiModelId({
             apiKey: apiKey.trim(),
             baseUrl: baseUrl.trim() || selectedProviderData?.defaultBaseUrl || '',
             fallbackModelId: selectedProviderData?.defaultModelId,
@@ -1250,9 +1256,7 @@ function ProviderContent({
                 <span className="text-xs text-muted-foreground shrink-0">—</span>
               )}
               <span className={cn('truncate text-left', !selectedProvider && 'text-muted-foreground')}>
-                {selectedProviderData
-                  ? `${selectedProviderData.id === 'custom' ? t('settings:aiProviders.custom') : selectedProviderData.name}${selectedProviderData.model ? ` — ${selectedProviderData.model}` : ''}`
-                  : t('provider.selectPlaceholder')}
+                {selectedProviderLabel}
               </span>
             </div>
             <ChevronDown className={cn('h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform', providerMenuOpen && 'rotate-180')} />
@@ -1290,7 +1294,10 @@ function ProviderContent({
                       ) : (
                         <span className="text-sm leading-none shrink-0">{p.icon}</span>
                       )}
-                      <span className="truncate">{p.id === 'custom' ? t('settings:aiProviders.custom') : p.name}{p.model ? ` — ${p.model}` : ''}</span>
+                      <span className="truncate">
+                        {(p.id === 'custom' ? t('settings:aiProviders.custom') : p.name)
+                          + (p.model && p.model !== p.name ? ` — ${p.model}` : '')}
+                      </span>
                     </div>
                     {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
                   </button>
@@ -1333,13 +1340,13 @@ function ProviderContent({
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-3">
                 <Label htmlFor="modelId">{t('provider.modelId')}</Label>
-                {selectedProvider === 'ainft' && (
+                {selectedProvider === 'bankofai' && (
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => { void handleRefreshAinftModels(); }}
-                    disabled={modelsLoading || !canDiscoverAinftModels}
+                    onClick={() => { void handleRefreshBankOfAiModels(); }}
+                    disabled={modelsLoading || !canDiscoverBankOfAiModels}
                     className="h-7 rounded-full px-3 text-[12px]"
                   >
                     <RefreshCw className={cn('mr-1.5 h-3.5 w-3.5', modelsLoading && 'animate-spin')} />
@@ -1347,7 +1354,7 @@ function ProviderContent({
                   </Button>
                 )}
               </div>
-              {usesAinftModelSelect ? (
+              {usesBankOfAiModelSelect ? (
                 <Select
                   id="modelId"
                   value={modelId}
@@ -1378,10 +1385,10 @@ function ProviderContent({
                 />
               )}
               <p className="text-xs text-muted-foreground">
-                {selectedProvider === 'ainft'
+                {selectedProvider === 'bankofai'
                   ? (modelsError
-                    ? t('provider.ainftModelsFailed', { error: modelsError })
-                    : (modelsLoading ? t('provider.ainftModelsLoading') : t('provider.ainftModelsHint')))
+                    ? t('provider.bankofaiModelsFailed', { error: modelsError })
+                    : (modelsLoading ? t('provider.bankofaiModelsLoading') : t('provider.bankofaiModelsHint')))
                   : t('provider.modelIdDesc')}
               </p>
             </div>
