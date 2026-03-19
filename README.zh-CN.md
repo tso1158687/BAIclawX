@@ -323,9 +323,9 @@ pnpm test                 # 运行单元测试
 pnpm run build:vite       # 仅构建前端
 pnpm build                # 完整生产构建（含打包资源）
 pnpm package              # 为当前平台打包
-pnpm package:mac          # 为 macOS 打包
-pnpm package:win          # 为 Windows 打包
-pnpm package:linux        # 为 Linux 打包
+pnpm package:mac          # 为 macOS 打包（会下载并校验 x64 + arm64 的 uv）
+pnpm package:win          # 为 Windows 打包（会下载并校验 x64 + arm64 的 uv）
+pnpm package:linux        # 为 Linux 打包（会下载并校验 x64 + arm64 的 uv）
 ```
 ### 技术栈
 

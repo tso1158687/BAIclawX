@@ -246,10 +246,14 @@ Renderer UI
 | 執行單元測試 | `pnpm test` |
 | 建置前端 | `pnpm run build:vite` |
 | 執行 lint | `pnpm run lint` |
+| macOS 打包 | `pnpm package:mac` |
+| Windows 打包 | `pnpm package:win` |
+| Linux 打包 | `pnpm package:linux` |
 
 ### 開發注意事項
 
 - 專案使用 `pnpm`，版本固定在 `package.json` 的 `packageManager`
+- 平台打包指令會先下載並驗證對應架構的 bundled `uv`，避免產出缺少 `Resources/bin/uv` 的安裝包
 - Renderer 不能直接呼叫 Gateway HTTP endpoint，需走 `host-api`
 - 任何功能或架構修改後，應同步更新 README 與語系內容
 - 本專案使用 `electron-store` 與系統 keychain，不需要額外資料庫

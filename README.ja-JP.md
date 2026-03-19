@@ -319,9 +319,9 @@ pnpm test                 # ユニットテストを実行
 pnpm run build:vite       # フロントエンドのみビルド
 pnpm build                # フルプロダクションビルド（パッケージアセット含む）
 pnpm package              # 現在のプラットフォーム向けにパッケージ化
-pnpm package:mac          # macOS向けにパッケージ化
-pnpm package:win          # Windows向けにパッケージ化
-pnpm package:linux        # Linux向けにパッケージ化
+pnpm package:mac          # macOS向けにパッケージ化（x64 + arm64 の uv を取得して検証）
+pnpm package:win          # Windows向けにパッケージ化（x64 + arm64 の uv を取得して検証）
+pnpm package:linux        # Linux向けにパッケージ化（x64 + arm64 の uv を取得して検証）
 ```
 ### 技術スタック
 
