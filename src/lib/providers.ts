@@ -142,7 +142,7 @@ export const PROVIDER_TYPE_INFO: ProviderTypeInfo[] = [
     showModelId: false,
     modelIdPlaceholder: 'bankofai-chat',
     defaultModelId: 'MiniMax-M2.5',
-    docsUrl: brand.docsUrl,
+    docsUrl: 'https://docs-test.b.ai/BAIclaw/Get%20API%20Key/',
     sortOrder: 0,
   },
   {
