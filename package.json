@@ -53,6 +53,7 @@
         "postversion": "git push && git push --tags"
     },
     "dependencies": {
+        "@bankofai/agent-wallet": "^2.3.0",
         "clawhub": "^0.5.0",
         "electron-store": "^11.0.2",
         "electron-updater": "^6.8.3",
