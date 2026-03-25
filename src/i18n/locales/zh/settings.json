@@ -12,6 +12,83 @@
     "launchAtStartup": "开机自动启动",
     "launchAtStartupDesc": "登录系统后自动启动 BAIclaw"
   },
+  "web3": {
+    "title": "Web3",
+    "sectionTitle": "Web3配置",
+    "agentWalletTitle": "Agent wallet",
+    "notCreatedSubtitle": "未创建 Agent Wallet",
+    "createWallet": "创建钱包",
+    "deleteWallet": "删除钱包",
+    "bankOfAiKeyWarning": "还未添加 BANK OF AI 的API key，请添加后再进行创建",
+    "subtitle": "Agent 链上签名钱包（EVM，本地加密存储）",
+    "create": "创建 AgentWallet",
+    "empty": "暂无 AgentWallet",
+    "emptyDesc": "创建钱包以生成本地安全保存的 EVM 地址。",
+    "dialogTitle": "创建 AgentWallet",
+    "dialogDesc": "将在本机生成并加密保存新密钥。私钥不会离开此设备；创建后可复制地址。",
+    "labelOptional": "显示名称（可选）",
+    "labelPlaceholder": "例如：交易 Agent",
+    "walletId": "钱包 ID",
+    "address": "地址",
+    "active": "当前活跃",
+    "copyAddress": "复制地址",
+    "copied": "已复制地址",
+    "delete": "删除",
+    "deleteConfirmTitle": "删除 AgentWallet？",
+    "deleteConfirmMessage": "将删除钱包 {{id}} 及其本地密钥文件，此操作不可恢复。",
+    "loadFailed": "加载钱包列表失败",
+    "createFailed": "创建钱包失败",
+    "createSuccess": "AgentWallet 已创建",
+    "deleteFailed": "删除钱包失败",
+    "deleteSuccess": "已删除 AgentWallet",
+    "creating": "创建中…",
+    "wizard": {
+      "title": "创建 AgentWallet",
+      "cancel": "取消",
+      "back": "上一步",
+      "next": "下一步",
+      "finish": "完成",
+      "bindingSkippedToast": "暂时无法在线校验与 BANK OF AI 的绑定，已通过本地格式校验。",
+      "step0": {
+        "subtitle": "Agent Wallet 是专为 AI 代理打造的本地安全的 Web3 钱包",
+        "body": "你可以导入与 BANK OF AI API-Key 所关联账户的钱包私钥。绑定后可使用自助充值、转账、兑换、管理流动性池以及访问 x402 协议资源等能力（以产品实际提供为准）。",
+        "learnMore": "了解更多关于 Agent Wallet 的知识",
+        "learnMoreUrl": "https://docs.bankofai.io"
+      },
+      "step1": {
+        "label": "绑定 BANK OF AI 登录钱包私钥",
+        "howTo": "了解如何获取私钥",
+        "howToUrl": "https://docs.bankofai.io",
+        "placeholder": "64 位十六进制私钥",
+        "errorFormat": "私钥格式不正确",
+        "errorMismatch": "私钥对应的地址与 BANK OF AI 的 API Key 所在账户地址不一致",
+        "errorTronOnly": "目前只支持 TRON 地址",
+        "errorNoApiKey": "无法读取该账户的 BANK OF AI API Key"
+      },
+      "step2": {
+        "passwordLabel": "设置主密码",
+        "confirmLabel": "确认主密码",
+        "policyHint": "至少 8 位，包含大小写字母、数字和特殊字符",
+        "mismatchHint": "两次输入的密码不一致",
+        "warningBullet1": "至少 8 位，包含大小写字母、数字和特殊字符",
+        "warningBullet2": "请妥善保管好主密码，BAIclaw 不会备份您的密码，丢失无法找回"
+      },
+      "step3": {
+        "successTitle": "钱包创建成功！",
+        "intro": "恭喜你已解锁 BAIclaw 的众多 web3 技能，你可以尝试提问：",
+        "example1": "帮我算算现在 100 USDT 在 SunSwap 上能换多少 TRX？",
+        "example2": "我的 BANK OF AI 账户还有多少余额？",
+        "example3": "显示我最近的 BANK OF AI 订单记录。",
+        "example4": "给 BANK OF AI 充值 1 USDT。",
+        "learnSkills": "了解更多 BANK OF AI web3 技能",
+        "skillsUrl": "https://docs.bankofai.io"
+      },
+      "errors": {
+        "masterPasswordIncorrect": "主密码不正确",
+        "walletExists": "已存在钱包，请先删除后再创建"
+      }
+    }
+  },
   "aiProviders": {
     "title": "AI 模型提供商",
     "description": "配置 AI 模型提供商和 API 密钥",

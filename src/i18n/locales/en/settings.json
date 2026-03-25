@@ -12,6 +12,83 @@
     "launchAtStartup": "Launch at system startup",
     "launchAtStartupDesc": "Automatically launch BAIclaw when you log in"
   },
+  "web3": {
+    "title": "Web3",
+    "sectionTitle": "Web3",
+    "agentWalletTitle": "Agent wallet",
+    "notCreatedSubtitle": "Agent Wallet not created",
+    "createWallet": "Create wallet",
+    "deleteWallet": "Delete wallet",
+    "bankOfAiKeyWarning": "Add your BANK OF AI API key before creating a wallet.",
+    "subtitle": "Agent wallets for on-chain signing (EVM, local encrypted keys)",
+    "create": "Create AgentWallet",
+    "empty": "No AgentWallet yet",
+    "emptyDesc": "Create a wallet to get an EVM address stored securely on this device.",
+    "dialogTitle": "Create AgentWallet",
+    "dialogDesc": "A new key is generated locally and encrypted. Copy the address after creation; the private key never leaves this machine.",
+    "labelOptional": "Label (optional)",
+    "labelPlaceholder": "e.g. Trading agent",
+    "walletId": "Wallet ID",
+    "address": "Address",
+    "active": "Active",
+    "copyAddress": "Copy address",
+    "copied": "Address copied",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Remove AgentWallet?",
+    "deleteConfirmMessage": "Wallet {{id}} and its local secret files will be removed. This cannot be undone.",
+    "loadFailed": "Failed to load wallets",
+    "createFailed": "Failed to create wallet",
+    "createSuccess": "AgentWallet created",
+    "deleteFailed": "Failed to delete wallet",
+    "deleteSuccess": "AgentWallet removed",
+    "creating": "Creating…",
+    "wizard": {
+      "title": "Create AgentWallet",
+      "cancel": "Cancel",
+      "back": "Back",
+      "next": "Next",
+      "finish": "Finish",
+      "bindingSkippedToast": "Could not verify binding with BANK OF AI online; format checks passed.",
+      "step0": {
+        "subtitle": "Agent Wallet is a locally secure Web3 wallet built for AI agents.",
+        "body": "You can import the private key that matches your BANK OF AI API key account. After linking, you can use related capabilities such as top-ups, transfers, swaps, liquidity, and x402 protocol resources (subject to product availability).",
+        "learnMore": "Learn more about Agent Wallet",
+        "learnMoreUrl": "https://docs.bankofai.io"
+      },
+      "step1": {
+        "label": "Bind BANK OF AI login wallet private key",
+        "howTo": "How to get your private key",
+        "howToUrl": "https://docs.bankofai.io",
+        "placeholder": "64-character hex private key",
+        "errorFormat": "Invalid private key format.",
+        "errorMismatch": "The address derived from this private key does not match the TRON address linked to your BANK OF AI API key.",
+        "errorTronOnly": "Only TRON addresses are supported for now.",
+        "errorNoApiKey": "Could not read your BANK OF AI API key for this account."
+      },
+      "step2": {
+        "passwordLabel": "Master password",
+        "confirmLabel": "Confirm master password",
+        "policyHint": "At least 8 characters, including uppercase and lowercase letters, numbers, and a special character.",
+        "mismatchHint": "The two passwords do not match.",
+        "warningBullet1": "Use at least 8 characters with uppercase, lowercase, numbers, and a special character.",
+        "warningBullet2": "Keep your master password safe. BAIclaw does not back it up; it cannot be recovered if lost."
+      },
+      "step3": {
+        "successTitle": "Wallet created successfully!",
+        "intro": "You can now use many BAIclaw Web3 skills. Try asking:",
+        "example1": "How much TRX can I get for 100 USDT on SunSwap right now?",
+        "example2": "What is my BANK OF AI account balance?",
+        "example3": "Show my recent BANK OF AI orders.",
+        "example4": "Top up BANK OF AI with 1 USDT.",
+        "learnSkills": "Learn more about BANK OF AI Web3 skills",
+        "skillsUrl": "https://docs.bankofai.io"
+      },
+      "errors": {
+        "masterPasswordIncorrect": "Incorrect master password.",
+        "walletExists": "A wallet already exists. Remove it before creating a new one."
+      }
+    }
+  },
   "aiProviders": {
     "title": "AI Providers",
     "description": "Configure your AI model providers and API keys",

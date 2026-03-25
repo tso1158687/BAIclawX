@@ -127,6 +127,9 @@ Light mode, dark mode, or system-synchronized themes. BAIclaw adapts to your pre
 ### 🚀 Startup Launch Control
 In **Settings → General**, you can enable **Launch at system startup** so BAIclaw starts automatically after login.
 
+### Web3 / AgentWallet
+In **Settings**, the **Web3** section manages a **TRON AgentWallet**: a four-step **Create AgentWallet** wizard imports a TRON private key (validated against your BANK OF AI API key when the platform exposes a linked address), sets a local **master password** for `@bankofai/agent-wallet` encrypted storage, then shows a success screen. You can copy the address and delete the wallet. Host API: `GET` `/api/agent-wallets`, `POST` `/api/agent-wallets/validate-private-key`, `POST` `/api/agent-wallets`, `DELETE` `/api/agent-wallets/:id`.
+
 ---
 
 ## Getting Started

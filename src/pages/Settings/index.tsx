@@ -41,6 +41,7 @@ import { hostApiFetch } from '@/lib/host-api';
 import { cn } from '@/lib/utils';
 import { brand, getBrandExternalUrl } from '@/lib/brand';
 import heroImage from '@/assets/hero.png';
+import { Web3Settings } from '@/components/settings/Web3Settings';
 type ControlUiInfo = {
   url: string;
   token: string;
@@ -556,6 +557,10 @@ export function Settings() {
               </div>
             </div>
           </div>
+
+          <Separator className="bg-black/5 dark:bg-white/5" />
+
+          <Web3Settings />
 
           <Separator className="bg-black/5 dark:bg-white/5" />
 

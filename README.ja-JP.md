@@ -126,6 +126,9 @@ Skills ページでは OpenClaw の複数ソース（管理ディレクトリ、
 ### 🚀 自動起動設定
 **設定 → 通用** から **システム起動時に自動起動** を有効化すると、ログイン後に BAIclaw が自動的に起動します。
 
+### Web3 / AgentWallet
+**設定 → Web3** では 4 ステップの **AgentWallet 作成**ウィザードで **TRON** 秘密鍵をインポートし、ローカルの**マスターパスワード**で `@bankofai/agent-wallet` 保管を初期化します。プラットフォームが紐付けアドレスを返す場合は BANK OF AI API キーと照合します。成功画面のあと、アドレス表示・削除が可能です。Host API: `GET` `/api/agent-wallets`、`POST` `/api/agent-wallets/validate-private-key`、`POST` `/api/agent-wallets`、`DELETE` `/api/agent-wallets/:id`。
+
 ---
 
 ## はじめに

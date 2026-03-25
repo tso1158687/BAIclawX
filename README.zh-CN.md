@@ -127,6 +127,9 @@ Skills 页面可展示来自多个 OpenClaw 来源的技能（托管目录、wor
 ### 🚀 开机启动控制
 在 **设置 → 通用** 中，你可以开启 **开机自动启动**，让 BAIclaw 在系统登录后自动启动。
 
+### Web3 / AgentWallet
+在 **设置 → Web3** 中通过四步 **创建 AgentWallet** 向导导入 **TRON** 私钥、设置本地**主密码**（`@bankofai/agent-wallet` 加密存储），并在平台返回绑定地址时与 BANK OF AI API Key 账户校验一致；成功页展示示例提问。可复制地址、删除钱包。Host API：`GET` `/api/agent-wallets`、`POST` `/api/agent-wallets/validate-private-key`、`POST` `/api/agent-wallets`、`DELETE` `/api/agent-wallets/:id`。
+
 ---
 
 ## 快速上手
