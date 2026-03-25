@@ -194,8 +194,16 @@ export function ProvidersSettings() {
 
   const handleDeleteProvider = async (providerId: string) => {
     try {
-      const data = await hostApiFetch<{ wallets?: { id: string }[] }>('/api/agent-wallets');
-      if (data.wallets && data.wallets.length > 0) {
+      const data = await hostApiFetch<{
+        wallets?: { id: string }[];
+        vaultUnlockRequired?: boolean;
+        vaultTopologyIncomplete?: boolean;
+      }>('/api/agent-wallets');
+      if (
+        data.vaultUnlockRequired
+        || data.vaultTopologyIncomplete
+        || (data.wallets && data.wallets.length > 0)
+      ) {
         setAgentWalletBoundModalOpen(true);
         return;
       }
@@ -219,15 +227,22 @@ export function ProvidersSettings() {
     }
   };
 
-  const handleRequestEdit = async (accountId: string, vendorId: string) => {
+  const handleRequestEdit = async (accountId: string, _vendorId: string) => {
     // if (vendorId !== 'bankofai') {
     //   setEditingProvider(accountId);
     //   return;
     // }
-    console.log(vendorId)
     try {
-      const data = await hostApiFetch<{ wallets?: { id: string }[] }>('/api/agent-wallets');
-      if (data.wallets && data.wallets.length > 0) {
+      const data = await hostApiFetch<{
+        wallets?: { id: string }[];
+        vaultUnlockRequired?: boolean;
+        vaultTopologyIncomplete?: boolean;
+      }>('/api/agent-wallets');
+      if (
+        data.vaultUnlockRequired
+        || data.vaultTopologyIncomplete
+        || (data.wallets && data.wallets.length > 0)
+      ) {
         setAgentWalletBoundModalOpen(true);
         return;
       }

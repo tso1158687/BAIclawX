@@ -154,6 +154,8 @@ export function CreateAgentWalletWizard({
       } else if (msg.includes('WALLET_ALREADY_EXISTS')) {
         toast.error(t('web3.wizard.errors.walletExists'));
         handleClose();
+      } else if (msg.includes('WALLET_PERSIST_FAILED')) {
+        toast.error(t('web3.wizard.errors.persistFailed'));
       } else {
         toast.error(msg);
       }

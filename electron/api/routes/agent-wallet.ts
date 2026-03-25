@@ -2,7 +2,9 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import {
   createAgentWalletFromTronImport,
   deleteAgentWallet,
+  getAgentWalletStoragePath,
   listAgentWallets,
+  unlockAgentWalletVault,
   validateTronPrivateKeyForBankOfAi,
 } from '../../services/agent-wallet/agent-wallet-service';
 import type { HostApiContext } from '../context';
@@ -18,10 +20,38 @@ export async function handleAgentWalletRoutes(
 
   if (url.pathname === '/api/agent-wallets' && req.method === 'GET') {
     try {
-      const wallets = await listAgentWallets();
-      sendJson(res, 200, { success: true, wallets });
+      const { wallets, vaultUnlockRequired, vaultTopologyIncomplete } = await listAgentWallets();
+      sendJson(res, 200, {
+        success: true,
+        wallets,
+        vaultUnlockRequired,
+        vaultTopologyIncomplete,
+        storagePath: getAgentWalletStoragePath(),
+      });
     } catch (error) {
       sendJson(res, 500, { success: false, error: String(error) });
+    }
+    return true;
+  }
+
+  if (url.pathname === '/api/agent-wallets/unlock' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody<{ masterPassword?: string }>(req);
+      const masterPassword = body.masterPassword ?? '';
+      if (!masterPassword) {
+        sendJson(res, 400, { success: false, error: 'Missing masterPassword' });
+        return true;
+      }
+      unlockAgentWalletVault(masterPassword);
+      sendJson(res, 200, { success: true });
+    } catch (error) {
+      const message = String((error as Error)?.message ?? error);
+      const prefix = message.replace(/^Error:\s*/, '');
+      if (prefix === 'NO_WALLET_CONFIG' || prefix === 'NO_MASTER_VAULT') {
+        sendJson(res, 400, { success: false, error: prefix });
+        return true;
+      }
+      sendJson(res, 401, { success: false, error: 'MASTER_PASSWORD_INCORRECT' });
     }
     return true;
   }
@@ -62,7 +92,11 @@ export async function handleAgentWalletRoutes(
         masterPassword,
         bankOfAiAccountId,
       });
-      sendJson(res, 200, { success: true, wallet });
+      sendJson(res, 200, {
+        success: true,
+        wallet,
+        storagePath: getAgentWalletStoragePath(),
+      });
     } catch (error) {
       const message = String((error as Error)?.message ?? error);
       const codeMap: Record<string, number> = {
@@ -73,6 +107,7 @@ export async function handleAgentWalletRoutes(
         VALIDATION_NO_API_KEY: 400,
         WALLET_ALREADY_EXISTS: 409,
         MASTER_PASSWORD_INCORRECT: 401,
+        WALLET_PERSIST_FAILED: 500,
       };
       const prefix = message.replace(/^Error:\s*/, '');
       const status = codeMap[prefix] ?? 500;

@@ -1,12 +1,13 @@
 /**
  * Web3 / AgentWallet settings — horizontal card layout (Host API).
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Copy, Loader2, Shield, Wallet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Input } from '@/components/ui/input';
 import { hostApiFetch } from '@/lib/host-api';
 import { toUserMessage } from '@/lib/api-client';
 import { cn } from '@/lib/utils';
@@ -32,10 +33,18 @@ export function Web3Settings() {
   const refreshProviderSnapshot = useProviderStore((s) => s.refreshProviderSnapshot);
 
   const [wallets, setWallets] = useState<AgentWalletRow[]>([]);
+  const [vaultUnlockRequired, setVaultUnlockRequired] = useState(false);
+  const [vaultTopologyIncomplete, setVaultTopologyIncomplete] = useState(false);
   const [walletsLoading, setWalletsLoading] = useState(true);
   const [providersReady, setProvidersReady] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AgentWalletRow | null>(null);
+  const [unlockPassword, setUnlockPassword] = useState('');
+  const [unlockSubmitting, setUnlockSubmitting] = useState(false);
+  const [walletStoragePath, setWalletStoragePath] = useState<string | null>(null);
+
+  /** Ignore stale GET /api/agent-wallets results when an older request finishes after a newer one (e.g. mount + post-create refresh). */
+  const walletListFetchGen = useRef(0);
 
   const statusById = useMemo(
     () => new Map(statuses.map((s) => [s.id, s])),
@@ -63,18 +72,56 @@ export function Web3Settings() {
   }, [wallets]);
 
   const refreshWallets = useCallback(async () => {
+    const gen = ++walletListFetchGen.current;
     try {
-      const data = await hostApiFetch<{ success: boolean; wallets?: AgentWalletRow[] }>(
-        '/api/agent-wallets',
-      );
+      const data = await hostApiFetch<{
+        success: boolean;
+        wallets?: AgentWalletRow[];
+        vaultUnlockRequired?: boolean;
+        vaultTopologyIncomplete?: boolean;
+        storagePath?: string;
+      }>('/api/agent-wallets');
+      if (gen !== walletListFetchGen.current) return;
       setWallets(data.wallets ?? []);
+      setVaultUnlockRequired(Boolean(data.vaultUnlockRequired));
+      setVaultTopologyIncomplete(Boolean(data.vaultTopologyIncomplete));
+      setWalletStoragePath(typeof data.storagePath === 'string' ? data.storagePath : null);
     } catch (error) {
+      if (gen !== walletListFetchGen.current) return;
       toast.error(`${t('web3.loadFailed')}: ${toUserMessage(error)}`);
       setWallets([]);
+      setVaultUnlockRequired(false);
+      setVaultTopologyIncomplete(false);
+      setWalletStoragePath(null);
     } finally {
-      setWalletsLoading(false);
+      if (gen === walletListFetchGen.current) {
+        setWalletsLoading(false);
+      }
     }
   }, [t]);
+
+  const submitVaultUnlock = async () => {
+    const pw = unlockPassword.trim();
+    if (!pw) {
+      toast.error(t('web3.vaultUnlockPasswordRequired'));
+      return;
+    }
+    setUnlockSubmitting(true);
+    try {
+      await hostApiFetch('/api/agent-wallets/unlock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ masterPassword: pw }),
+      });
+      setUnlockPassword('');
+      toast.success(t('web3.vaultUnlockSuccess'));
+      await refreshWallets();
+    } catch (error) {
+      toast.error(`${t('web3.vaultUnlockFailed')}: ${toUserMessage(error)}`);
+    } finally {
+      setUnlockSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -115,7 +162,12 @@ export function Web3Settings() {
   };
 
   const loading = walletsLoading || providersLoading || !providersReady;
-  const canOpenWizard = providersReady && hasBankOfAiKey && Boolean(bankOfAiAccountId) && !walletsLoading;
+  const canOpenWizard =
+    providersReady
+    && hasBankOfAiKey
+    && Boolean(bankOfAiAccountId)
+    && !walletsLoading
+    && !vaultUnlockRequired;
 
   return (
     <div>
@@ -144,6 +196,10 @@ export function Web3Settings() {
               <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
               {t('common:status.loading')}
             </div>
+          ) : vaultUnlockRequired ? (
+            <p className="mt-1 text-[13px] text-muted-foreground leading-snug">
+              {t('web3.vaultUnlockSubtitle')}
+            </p>
           ) : !displayWallet ? (
             <p className="mt-1 text-[13px] text-muted-foreground">{t('web3.notCreatedSubtitle')}</p>
           ) : (
@@ -165,7 +221,41 @@ export function Web3Settings() {
         </div>
 
         <div className="shrink-0 flex flex-col items-stretch sm:items-end gap-2 sm:pl-2">
-          {!displayWallet && !loading ? (
+          {vaultUnlockRequired && !loading ? (
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[220px]">
+              <Input
+                type="password"
+                autoComplete="current-password"
+                placeholder={t('web3.vaultUnlockPasswordPlaceholder')}
+                value={unlockPassword}
+                onChange={(e) => setUnlockPassword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') void submitVaultUnlock();
+                }}
+                className="h-10 rounded-xl"
+                disabled={unlockSubmitting}
+              />
+              <Button
+                type="button"
+                onClick={() => void submitVaultUnlock()}
+                disabled={unlockSubmitting}
+                className={cn(
+                  'rounded-full h-10 px-5 gap-2 font-medium shadow-sm',
+                  'bg-[#0a84ff] hover:bg-[#007aff] text-white',
+                  'disabled:opacity-50 disabled:pointer-events-none',
+                )}
+              >
+                {unlockSubmitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                ) : (
+                  <Shield className="h-4 w-4 text-white" strokeWidth={2} />
+                )}
+                {t('web3.vaultUnlockSubmit')}
+              </Button>
+            </div>
+          ) : null}
+
+          {!displayWallet && !loading && !vaultUnlockRequired ? (
             <Button
               type="button"
               onClick={() => setShowWizard(true)}
@@ -195,7 +285,19 @@ export function Web3Settings() {
         </div>
       </div>
 
-      {providersReady && !displayWallet && !walletsLoading && !hasBankOfAiKey ? (
+      {walletStoragePath && !walletsLoading ? (
+        <p className="mt-2 text-[12px] text-muted-foreground leading-snug break-all">
+          {t('web3.storagePathHint', { path: walletStoragePath })}
+        </p>
+      ) : null}
+
+      {vaultTopologyIncomplete && !walletsLoading && !displayWallet ? (
+        <p className="mt-2 text-left text-[13px] text-amber-800 dark:text-amber-400 leading-snug rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3">
+          {t('web3.vaultTopologyIncompleteBanner')}
+        </p>
+      ) : null}
+
+      {providersReady && !displayWallet && !walletsLoading && !vaultUnlockRequired && !hasBankOfAiKey ? (
         <p className="mt-2 text-left text-[13px] text-red-600 dark:text-red-500 leading-snug max-w-full sm:ml-[0%]">
           {t('web3.bankOfAiKeyWarning')}
         </p>

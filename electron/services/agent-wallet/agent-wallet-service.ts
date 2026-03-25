@@ -3,12 +3,13 @@
  */
 import { app, safeStorage } from 'electron';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
-import { randomUUID } from 'node:crypto';
 import {
   ConfigWalletProvider,
   SecureKVStore,
   TronSigner,
+  loadRuntimeSecretsPassword,
   type SecretLoaderFn,
 } from '@bankofai/agent-wallet';
 import { fetchBankOfAiLinkedTronAddress } from './bankofai-tron-verify';
@@ -24,17 +25,92 @@ const TRON_NETWORK = 'tron';
 /** Legacy wallets created before TRON migration */
 const LEGACY_EVM_NETWORK = 'eip155:1';
 
+/**
+ * Prefer Electron `app.getPath('home')` so the GUI matches the user’s real home directory
+ * (CLI uses `os.homedir()` / $HOME — they usually match, but Electron is authoritative in-app).
+ */
+function resolveUserHomeDir(): string {
+  try {
+    return app.getPath('home');
+  } catch {
+    return os.homedir();
+  }
+}
+
+/** Align with @bankofai/agent-wallet CLI: `DEFAULT_DIR` + `AGENT_WALLET_DIR` tilde expansion. */
+function expandTildeWalletDir(p: string): string {
+  const home = resolveUserHomeDir();
+  if (p === '~') return home;
+  if (p.startsWith('~/')) return path.join(home, p.slice(2));
+  return p;
+}
+
 function getWalletRoot(): string {
-  return path.join(app.getPath('userData'), 'agent-wallet');
+  const fromEnv = process.env.AGENT_WALLET_DIR?.trim();
+  if (fromEnv) {
+    return expandTildeWalletDir(fromEnv);
+  }
+  return path.join(resolveUserHomeDir(), '.agent-wallet');
+}
+
+/** Absolute directory used for vault files (for API/UI; compare with `agent-wallet list -d`). */
+export function getAgentWalletStoragePath(): string {
+  return getWalletRoot();
 }
 
 function walletsConfigPath(): string {
   return path.join(getWalletRoot(), WALLETS_CONFIG_FILENAME);
 }
 
+function masterJsonPath(): string {
+  return path.join(getWalletRoot(), 'master.json');
+}
+
+/** True when `wallets_config.json` parses and `wallets` has no entries (matches empty `agent-wallet list`). */
+function isTopologyEmptyOnDisk(): boolean {
+  try {
+    const raw = JSON.parse(fs.readFileSync(walletsConfigPath(), 'utf8')) as { wallets?: Record<string, unknown> };
+    const w = raw?.wallets;
+    if (!w || typeof w !== 'object') return true;
+    return Object.keys(w).length === 0;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Vault files exist but topology never registered — same state as CLI "No wallets configured."
+ * with only kv-password / master / empty wallets_config (no `secret_<id>.json`).
+ */
+function getVaultTopologyIncomplete(): boolean {
+  if (!fs.existsSync(walletsConfigPath()) || !fs.existsSync(masterJsonPath())) {
+    return false;
+  }
+  return isTopologyEmptyOnDisk();
+}
+
+function verifyWalletPersistedOnDisk(walletRoot: string, walletId: string): void {
+  const secretPath = path.join(walletRoot, `secret_${walletId}.json`);
+  if (!fs.existsSync(secretPath)) {
+    throw new Error('WALLET_PERSIST_FAILED');
+  }
+  let raw: unknown;
+  try {
+    raw = JSON.parse(fs.readFileSync(path.join(walletRoot, WALLETS_CONFIG_FILENAME), 'utf8'));
+  } catch {
+    throw new Error('WALLET_PERSIST_FAILED');
+  }
+  const wallets = (raw as { wallets?: Record<string, unknown> })?.wallets;
+  if (!wallets || typeof wallets !== 'object' || !(walletId in wallets)) {
+    throw new Error('WALLET_PERSIST_FAILED');
+  }
+}
+
 function ensureWalletDir(): void {
   fs.mkdirSync(getWalletRoot(), { recursive: true });
 }
+
+const VAULT_PASSWORD_REQUIRED = 'VAULT_PASSWORD_REQUIRED';
 
 function readKvPassword(): string {
   ensureWalletDir();
@@ -46,7 +122,7 @@ function readKvPassword(): string {
     if (!safeStorage.isEncryptionAvailable()) {
       throw new Error(
         'OS secure storage is unavailable but an encrypted wallet password file exists. '
-        + 'Enable keychain/secret service or remove agent-wallet/kv-password.bin after backup.',
+        + 'Enable keychain/secret service or remove kv-password.bin under your agent wallet dir after backup.',
       );
     }
     const buf = fs.readFileSync(encPath);
@@ -57,7 +133,32 @@ function readKvPassword(): string {
     return fs.readFileSync(plainPath, 'utf8').trim();
   }
 
-  throw new Error('Agent wallet vault is not initialized');
+  const masterPath = path.join(root, 'master.json');
+  if (!fs.existsSync(masterPath)) {
+    throw new Error('Agent wallet vault is not initialized');
+  }
+
+  const runtimePw = loadRuntimeSecretsPassword(root);
+  if (runtimePw) {
+    try {
+      new SecureKVStore(root, runtimePw).verifyPassword();
+      return runtimePw;
+    } catch {
+      // ignore invalid runtime_secrets.json password
+    }
+  }
+
+  const envPw = process.env.AGENT_WALLET_PASSWORD?.trim();
+  if (envPw) {
+    try {
+      new SecureKVStore(root, envPw).verifyPassword();
+      return envPw;
+    } catch {
+      // ignore invalid env password
+    }
+  }
+
+  throw new Error(VAULT_PASSWORD_REQUIRED);
 }
 
 /**
@@ -101,17 +202,19 @@ const secretLoader: SecretLoaderFn = (configDir, password, secretRef) => {
   return kv.loadSecret(secretRef);
 };
 
-function getProvider(): ConfigWalletProvider {
-  const password = readKvPassword();
+function getProviderWithPassword(password: string): ConfigWalletProvider {
   return new ConfigWalletProvider(getWalletRoot(), password, {
     network: TRON_NETWORK,
     secretLoader,
   });
 }
 
-function ensureKvInitialized(): void {
+function getProvider(): ConfigWalletProvider {
+  return getProviderWithPassword(readKvPassword());
+}
+
+function ensureKvInitializedWithPassword(password: string): void {
   ensureWalletDir();
-  const password = readKvPassword();
   const root = getWalletRoot();
   const masterPath = path.join(root, 'master.json');
   const kv = new SecureKVStore(root, password);
@@ -120,6 +223,28 @@ function ensureKvInitialized(): void {
   } else {
     kv.verifyPassword();
   }
+}
+
+function ensureKvInitialized(): void {
+  ensureKvInitializedWithPassword(readKvPassword());
+}
+
+/**
+ * Unlock a CLI-created vault for the GUI: verifies the master password against SecureKVStore
+ * and persists it for this app (OS keychain / plain fallback) like the creation wizard.
+ */
+export function unlockAgentWalletVault(masterPassword: string): void {
+  const root = getWalletRoot();
+  if (!fs.existsSync(walletsConfigPath())) {
+    throw new Error('NO_WALLET_CONFIG');
+  }
+  const masterPath = path.join(root, 'master.json');
+  if (!fs.existsSync(masterPath)) {
+    throw new Error('NO_MASTER_VAULT');
+  }
+  const kv = new SecureKVStore(root, masterPassword);
+  kv.verifyPassword();
+  persistUserMasterPassword(masterPassword);
 }
 
 type WalletMeta = Record<string, { label?: string }>;
@@ -208,6 +333,17 @@ export interface AgentWalletListItem {
   label?: string;
 }
 
+export type AgentWalletListResult = {
+  wallets: AgentWalletListItem[];
+  /** True when wallets_config exists but this app has no stored master password (CLI vault). */
+  vaultUnlockRequired: boolean;
+  /**
+   * `wallets` in wallets_config.json is empty while master exists — CLI `list` shows none;
+   * usually missing `secret_<id>.json` (import never completed). Re-run the wizard with the same master password.
+   */
+  vaultTopologyIncomplete: boolean;
+};
+
 async function resolveWalletAddress(
   provider: ConfigWalletProvider,
   id: string,
@@ -228,13 +364,29 @@ async function resolveWalletAddress(
   }
 }
 
-export async function listAgentWallets(): Promise<AgentWalletListItem[]> {
+export async function listAgentWallets(): Promise<AgentWalletListResult> {
   if (!fs.existsSync(walletsConfigPath())) {
-    return [];
+    return { wallets: [], vaultUnlockRequired: false, vaultTopologyIncomplete: false };
   }
 
-  ensureKvInitialized();
-  const provider = getProvider();
+  const topologyIncomplete = getVaultTopologyIncomplete();
+
+  let password: string;
+  try {
+    password = readKvPassword();
+  } catch (e) {
+    if (e instanceof Error && e.message === VAULT_PASSWORD_REQUIRED) {
+      return {
+        wallets: [],
+        vaultUnlockRequired: true,
+        vaultTopologyIncomplete: topologyIncomplete,
+      };
+    }
+    throw e;
+  }
+
+  ensureKvInitializedWithPassword(password);
+  const provider = getProviderWithPassword(password);
   const meta = loadWalletMeta();
   const rows = provider.listWallets();
   const out: AgentWalletListItem[] = [];
@@ -251,7 +403,11 @@ export async function listAgentWallets(): Promise<AgentWalletListItem[]> {
     });
   }
 
-  return out;
+  return {
+    wallets: out,
+    vaultUnlockRequired: false,
+    vaultTopologyIncomplete: topologyIncomplete && out.length === 0,
+  };
 }
 
 export interface CreateTronAgentWalletInput {
@@ -301,13 +457,36 @@ export async function createAgentWalletFromTronImport(
     throw new Error('WALLET_ALREADY_EXISTS');
   }
 
-  const walletId = `aw_${randomUUID().replace(/-/g, '')}`;
+  const walletId = 'default_secure';
+  const secretPath = path.join(walletRoot, `secret_${walletId}.json`);
+
+  /**
+   * Avoid `ensureStorage()` here: it persists an empty `wallets: {}` when the file is missing.
+   * If the app exits before `addWallet`, disk stays empty and matches "list shows nothing".
+   * `addWallet` → `persist()` already creates the directory and writes the full topology.
+   */
+  if (fs.existsSync(secretPath)) {
+    provider.addWallet(
+      walletId,
+      { type: 'local_secure', params: { secret_ref: walletId } },
+      { setActiveIfMissing: true },
+    );
+    const repaired = await provider.getWallet(walletId, TRON_NETWORK);
+    const address = await repaired.getAddress();
+    verifyWalletPersistedOnDisk(walletRoot, walletId);
+    return {
+      id: walletId,
+      address,
+      network: TRON_NETWORK,
+      isActive: provider.getActiveId() === walletId,
+    };
+  }
+
   const password = readKvPassword();
   const kv = new SecureKVStore(walletRoot, password);
   const pkBytes = decodeTronPrivateKeyHex(input.privateKeyHex);
   kv.saveSecret(walletId, pkBytes);
 
-  provider.ensureStorage();
   provider.addWallet(
     walletId,
     { type: 'local_secure', params: { secret_ref: walletId } },
@@ -316,6 +495,8 @@ export async function createAgentWalletFromTronImport(
 
   const wallet = await provider.getWallet(walletId, TRON_NETWORK);
   const address = await wallet.getAddress();
+
+  verifyWalletPersistedOnDisk(walletRoot, walletId);
 
   return {
     id: walletId,
@@ -332,6 +513,17 @@ export async function deleteAgentWallet(walletId: string): Promise<void> {
   ensureKvInitialized();
   const provider = getProvider();
   provider.removeWallet(walletId);
+
+  if (provider.listWallets().length === 0) {
+    const root = getWalletRoot();
+    try {
+      fs.rmSync(root, { recursive: true, force: true });
+    } catch (err) {
+      console.error('[agent-wallet] Failed to remove wallet directory:', err);
+      throw err;
+    }
+    return;
+  }
 
   const meta = loadWalletMeta();
   if (meta[walletId]) {
