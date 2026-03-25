@@ -35,7 +35,7 @@
     "copied": "コピーしました",
     "delete": "削除",
     "deleteConfirmTitle": "AgentWallet を削除しますか？",
-    "deleteConfirmMessage": "ウォレット {{id}} とローカルの秘密ファイルが削除されます。元に戻せません。",
+    "deleteConfirmMessage": "ウォレット、鍵、および設定は削除され、復元することはできません。本当に削除してもよろしいですか？",
     "loadFailed": "ウォレット一覧の読み込みに失敗しました",
     "createFailed": "ウォレットの作成に失敗しました",
     "createSuccess": "AgentWallet を作成しました",

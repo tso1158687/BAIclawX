@@ -35,7 +35,7 @@
     "copied": "Address copied",
     "delete": "Delete",
     "deleteConfirmTitle": "Remove AgentWallet?",
-    "deleteConfirmMessage": "Wallet {{id}} and its local secret files will be removed. This cannot be undone.",
+    "deleteConfirmMessage": "Wallets, keys, and configurations will be deleted and cannot be recovered. Are you sure you want to delete them?",
     "loadFailed": "Failed to load wallets",
     "createFailed": "Failed to create wallet",
     "createSuccess": "AgentWallet created",

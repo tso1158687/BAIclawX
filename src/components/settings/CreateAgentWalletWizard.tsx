@@ -161,8 +161,14 @@ export function CreateAgentWalletWizard({
     }
   };
 
-  const inputClass =
-    'h-10 rounded-xl text-[13px] bg-secondary border-black/10 dark:border-white/10';
+  /** Match ProvidersSettings / Agents inputs: override default `border-input` hover so borders stay soft */
+  const inputClass = cn(
+    'h-[44px] rounded-xl text-[13px] bg-secondary',
+    'border border-black/10 dark:border-white/10',
+    'hover:border-black/20 dark:hover:border-white/20',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-blue-500/50 focus-visible:border-blue-500',
+    'shadow-sm transition-all text-foreground placeholder:text-foreground/40',
+  );
 
   return (
     <div
