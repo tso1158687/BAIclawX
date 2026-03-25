@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Loader2,
+  X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -178,13 +179,23 @@ export function CreateAgentWalletWizard({
       aria-labelledby="agent-wallet-wizard-title"
     >
       <Card className="w-full max-w-lg rounded-2xl border border-black/10 dark:border-white/10 shadow-xl bg-card">
-        <CardHeader className="pb-3">
+        <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3 pr-1 pt-1">
           <CardTitle
             id="agent-wallet-wizard-title"
-            className="text-lg font-semibold text-foreground"
+            className="text-lg font-semibold text-foreground leading-tight pt-1.5 pr-2"
           >
             {t('web3.wizard.title')}
           </CardTitle>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
+            onClick={handleClose}
+            aria-label={t('common:actions.close')}
+          >
+            <X className="h-4 w-4" strokeWidth={2} />
+          </Button>
         </CardHeader>
 
         <CardContent className="space-y-4 pb-2 min-h-[200px]">
