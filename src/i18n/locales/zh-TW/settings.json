@@ -53,7 +53,7 @@
         "subtitle": "Agent Wallet 是專為 AI 代理打造的本機安全 Web3 錢包",
         "body": "你可匯入與 BANK OF AI API Key 關聯帳戶的錢包私鑰，以使用充值、轉帳、兌換、流動性與 x402 等能力（依產品實際提供為準）。",
         "learnMore": "了解更多關於 Agent Wallet",
-        "learnMoreUrl": "https://docs.bankofai.io"
+        "learnMoreUrl": "https://docs.bankofai.io/zh-Hans/Agent-Wallet/Intro/"
       },
       "step1": {
         "label": "綁定 BANK OF AI 登入錢包私鑰",

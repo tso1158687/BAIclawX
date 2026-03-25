@@ -53,7 +53,7 @@
         "subtitle": "Agent Wallet は AI エージェント向けのローカル安全な Web3 ウォレットです",
         "body": "BANK OF AI の API キーに紐づくウォレットの秘密鍵をインポートできます。チャージ、送金、スワップ、流動性、x402 などの機能に利用できます（提供状況は製品によります）。",
         "learnMore": "Agent Wallet の詳細",
-        "learnMoreUrl": "https://docs.bankofai.io"
+        "learnMoreUrl": "https://docs.bankofai.io/Agent-Wallet/Intro/"
       },
       "step1": {
         "label": "BANK OF AI ログインウォレットの秘密鍵を紐付け",

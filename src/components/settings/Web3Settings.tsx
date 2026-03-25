@@ -196,7 +196,7 @@ export function Web3Settings() {
       </div>
 
       {providersReady && !displayWallet && !walletsLoading && !hasBankOfAiKey ? (
-        <p className="mt-2 text-right text-[13px] text-red-600 dark:text-red-500 leading-snug max-w-full sm:ml-[25%]">
+        <p className="mt-2 text-left text-[13px] text-red-600 dark:text-red-500 leading-snug max-w-full sm:ml-[0%]">
           {t('web3.bankOfAiKeyWarning')}
         </p>
       ) : null}

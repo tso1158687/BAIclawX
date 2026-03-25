@@ -53,7 +53,7 @@
         "subtitle": "Agent Wallet is a locally secure Web3 wallet built for AI agents.",
         "body": "You can import the private key that matches your BANK OF AI API key account. After linking, you can use related capabilities such as top-ups, transfers, swaps, liquidity, and x402 protocol resources (subject to product availability).",
         "learnMore": "Learn more about Agent Wallet",
-        "learnMoreUrl": "https://docs.bankofai.io"
+        "learnMoreUrl": "https://docs.bankofai.io/Agent-Wallet/Intro/"
       },
       "step1": {
         "label": "Bind BANK OF AI login wallet private key",
