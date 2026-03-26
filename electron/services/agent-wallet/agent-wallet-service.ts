@@ -12,10 +12,8 @@ import {
   loadRuntimeSecretsPassword,
   type SecretLoaderFn,
 } from '@bankofai/agent-wallet';
-import { fetchBankOfAiLinkedTronAddress } from './bankofai-tron-verify';
-import { getApiKey } from '../../utils/secure-storage';
+import { verifyBankOfAiApiKeyByWalletAddress } from './bankofai-tron-verify';
 import { logger } from '../../utils/logger';
-import { getProviderAccount } from '../providers/provider-store';
 
 const KV_PWD_FILE = 'kv-password.bin';
 const KV_PWD_PLAIN_FILE = 'kv-password.plain.txt';
@@ -343,34 +341,30 @@ export type ValidateTronKeyResult = {
 };
 
 export async function validateTronPrivateKeyForBankOfAi(
-  privateKeyHex: string,
-  bankOfAiAccountId: string,
+  walletAddressInput: string,
+  apiKey: string,
 ): Promise<ValidateTronKeyResult> {
-  let derivedAddress: string;
-  try {
-    derivedAddress = await deriveTronAddressFromPrivateKey(privateKeyHex);
-  } catch {
-    return { ok: false, errorCode: 'FORMAT' };
+  const input = walletAddressInput.trim();
+  const key = apiKey.trim();
+  if (!key) {
+    return { ok: false, errorCode: 'NO_API_KEY' };
+  }
+
+  let derivedAddress = input;
+  if (!input.startsWith('T')) {
+    try {
+      derivedAddress = await deriveTronAddressFromPrivateKey(input);
+    } catch {
+      return { ok: false, errorCode: 'FORMAT' };
+    }
   }
 
   if (!derivedAddress.startsWith('T')) {
     return { ok: false, errorCode: 'NOT_TRON', derivedAddress };
   }
 
-  const apiKey = await getApiKey(bankOfAiAccountId);
-  if (!apiKey) {
-    return { ok: false, errorCode: 'NO_API_KEY' };
-  }
-
-  const account = await getProviderAccount(bankOfAiAccountId);
-  const baseUrl = (account?.baseUrl?.trim() || 'https://api.bankofai.io/v1').replace(/\/$/, '');
-
-  const expected = await fetchBankOfAiLinkedTronAddress(apiKey, baseUrl);
-  if (!expected) {
-    return { ok: true, derivedAddress, bindingSkipped: true };
-  }
-
-  if (expected !== derivedAddress) {
+  const valid = await verifyBankOfAiApiKeyByWalletAddress(derivedAddress, key);
+  if (!valid) {
     return { ok: false, errorCode: 'MISMATCH', derivedAddress };
   }
 

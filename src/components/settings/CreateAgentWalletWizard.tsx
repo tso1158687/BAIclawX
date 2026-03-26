@@ -18,6 +18,7 @@ import { hostApiFetch } from '@/lib/host-api';
 import { toUserMessage } from '@/lib/api-client';
 import { cn } from '@/lib/utils';
 import { trackUiEvent } from '@/lib/telemetry';
+import { useProviderStore } from '@/stores/providers';
 
 type Step = 0 | 1 | 2 | 3;
 
@@ -50,6 +51,7 @@ export function CreateAgentWalletWizard({
   onSuccess: () => Promise<void>;
 }) {
   const { t } = useTranslation('settings');
+  const getAccountApiKey = useProviderStore((s) => s.getAccountApiKey);
   const [step, setStep] = useState<Step>(0);
   const [privateKey, setPrivateKey] = useState('');
   const [masterPassword, setMasterPassword] = useState('');
@@ -89,10 +91,19 @@ export function CreateAgentWalletWizard({
     resetTransientErrors();
     setValidatingKey(true);
     try {
+      const apiKey = (await getAccountApiKey(bankOfAiAccountId))?.trim() ?? '';
+      if (!apiKey) {
+        setKeyErrorNoApiKey(true);
+        return;
+      }
+
       const res = await hostApiFetch<ValidateKeyResponse>('/api/agent-wallets/validate-private-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ privateKey: privateKey.trim(), bankOfAiAccountId }),
+        body: JSON.stringify({
+          wallet_address: privateKey.trim(),
+          api_key: apiKey,
+        }),
       });
       if (!res.success || res.ok !== true) {
         const code = res.errorCode;
@@ -102,9 +113,6 @@ export function CreateAgentWalletWizard({
         else if (code === 'NO_API_KEY') setKeyErrorNoApiKey(true);
         else setKeyErrorFormat(true);
         return;
-      }
-      if (res.bindingSkipped) {
-        toast.message(t('web3.wizard.bindingSkippedToast'));
       }
       setStep(2);
     } catch (error) {

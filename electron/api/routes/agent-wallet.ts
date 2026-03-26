@@ -86,14 +86,14 @@ export async function handleAgentWalletRoutes(
 
   if (url.pathname === '/api/agent-wallets/validate-private-key' && req.method === 'POST') {
     try {
-      const body = await parseJsonBody<{ privateKey?: string; bankOfAiAccountId?: string }>(req);
-      const privateKey = body.privateKey?.trim() ?? '';
-      const bankOfAiAccountId = body.bankOfAiAccountId?.trim() ?? '';
-      if (!privateKey || !bankOfAiAccountId) {
-        sendJson(res, 400, { success: false, error: 'Missing privateKey or bankOfAiAccountId' });
+      const body = await parseJsonBody<{ wallet_address?: string; api_key?: string }>(req);
+      const walletAddress = body.wallet_address?.trim() ?? '';
+      const apiKey = body.api_key?.trim() ?? '';
+      if (!walletAddress || !apiKey) {
+        sendJson(res, 400, { success: false, error: 'Missing wallet_address or api_key' });
         return true;
       }
-      const result = await validateTronPrivateKeyForBankOfAi(privateKey, bankOfAiAccountId);
+      const result = await validateTronPrivateKeyForBankOfAi(walletAddress, apiKey);
       sendJson(res, 200, { success: true, ...result });
     } catch (error) {
       sendJson(res, 500, { success: false, error: String(error) });
