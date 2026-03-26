@@ -130,6 +130,11 @@ export function CreateAgentWalletWizard({
   const handleSubmitCreate = async () => {
     setSubmitting(true);
     try {
+      console.log(JSON.stringify({
+          privateKey: privateKey.trim(),
+          masterPassword,
+          bankOfAiAccountId,
+        }))
       await hostApiFetch('/api/agent-wallets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
