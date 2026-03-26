@@ -175,6 +175,7 @@
     "agentWalletBound": {
       "title": "AgentWallet が紐付け済みです",
       "message": "この API キーには既に AgentWallet が紐付いています。変更するには、設定の Web3 で AgentWallet を削除してください。",
+      "message2": "この API キーには既に AgentWallet が紐付いています。削除するには、設定の Web3 で AgentWallet を削除してください。",
       "gotIt": "了解しました"
     },
     "protocols": {

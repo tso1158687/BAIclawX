@@ -175,6 +175,7 @@
     "agentWalletBound": {
       "title": "已綁定 AgentWallet",
       "message": "目前的 API Key 已綁定 AgentWallet；若要修改，請先到設定中刪除 AgentWallet",
+      "message2": "目前的 API Key 已綁定 AgentWallet；若要刪除，請先到設定中刪除 AgentWallet",
       "gotIt": "知道了"
     },
     "protocols": {

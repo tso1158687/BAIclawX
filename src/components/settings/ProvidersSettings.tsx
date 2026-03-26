@@ -141,6 +141,7 @@ export function ProvidersSettings() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingProvider, setEditingProvider] = useState<string | null>(null);
   const [agentWalletBoundModalOpen, setAgentWalletBoundModalOpen] = useState(false);
+  const [agentWalletBoundModalType, setAgentWalletBoundModalType] = useState(0);
   const visibleAccounts = useMemo(() => filterVisibleProviderAccounts(accounts), [accounts]);
   const visibleStatuses = useMemo(() => filterVisibleProviderStatuses(statuses), [statuses]);
   const visibleVendors = useMemo(() => filterVisibleProviderVendors(vendors), [vendors]);
@@ -204,6 +205,7 @@ export function ProvidersSettings() {
         || data.vaultTopologyIncomplete
         || (data.wallets && data.wallets.length > 0)
       ) {
+        setAgentWalletBoundModalType(2);
         setAgentWalletBoundModalOpen(true);
         return;
       }
@@ -243,6 +245,7 @@ export function ProvidersSettings() {
         || data.vaultTopologyIncomplete
         || (data.wallets && data.wallets.length > 0)
       ) {
+        setAgentWalletBoundModalType(1);
         setAgentWalletBoundModalOpen(true);
         return;
       }
@@ -364,7 +367,7 @@ export function ProvidersSettings() {
               {t('aiProviders.agentWalletBound.title')}
             </h2>
             <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
-              {t('aiProviders.agentWalletBound.message')}
+              {t(agentWalletBoundModalType === 1 ? 'aiProviders.agentWalletBound.message' : 'aiProviders.agentWalletBound.message2')}
             </p>
             <div className="mt-8 flex justify-between gap-3">
               <Button

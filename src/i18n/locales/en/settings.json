@@ -175,6 +175,7 @@
     "agentWalletBound": {
       "title": "AgentWallet is linked",
       "message": "This API key is already linked to an AgentWallet. To change it, delete the AgentWallet in Settings → Web3 first.",
+      "message2": "This API key is already linked to an AgentWallet. To delete it, delete the AgentWallet in Settings → Web3 first.",
       "gotIt": "Got it"
     },
     "protocols": {
