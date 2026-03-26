@@ -286,7 +286,7 @@ export function Web3Settings() {
       </div>
 
       {walletStoragePath && !walletsLoading ? (
-        <p className="mt-2 text-[12px] text-muted-foreground leading-snug break-all">
+        <p className="mt-2 text-[12px] text-muted-foreground leading-snug break-all hidden">
           {t('web3.storagePathHint', { path: walletStoragePath })}
         </p>
       ) : null}
