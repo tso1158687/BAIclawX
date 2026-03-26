@@ -207,7 +207,7 @@ export function Settings() {
 
     versionTapCountRef.current += 1;
 
-    if (versionTapCountRef.current >= 20) {
+    if (versionTapCountRef.current >= 10) {
       versionTapCountRef.current = 0;
       versionTapTimerRef.current = null;
       setShowHeroEasterEgg(true);
