@@ -130,11 +130,6 @@ export function CreateAgentWalletWizard({
   const handleSubmitCreate = async () => {
     setSubmitting(true);
     try {
-      console.log(JSON.stringify({
-          privateKey: privateKey.trim(),
-          masterPassword,
-          bankOfAiAccountId,
-        }))
       await hostApiFetch('/api/agent-wallets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,6 +139,17 @@ export function CreateAgentWalletWizard({
           bankOfAiAccountId,
         }),
       });
+      try {
+        await hostApiFetch('/api/agent-wallets/runtime-baiclaw-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ masterPassword }),
+        });
+      } catch (runtimeErr) {
+        toast.error(
+          `${t('web3.wizard.errors.runtimePasswordFailed')}: ${toUserMessage(runtimeErr)}`,
+        );
+      }
       toast.success(t('web3.createSuccess'));
       trackUiEvent('settings.agent_wallet_created');
       await onSuccess();

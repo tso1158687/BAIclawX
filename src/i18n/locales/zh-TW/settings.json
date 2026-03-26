@@ -94,7 +94,8 @@
       "errors": {
         "masterPasswordIncorrect": "主密碼不正確",
         "walletExists": "已有錢包，請先刪除後再建立",
-        "persistFailed": "錢包未能完整寫入磁碟（請檢查空間與權限），請再試一次。"
+        "persistFailed": "錢包未能完整寫入磁碟（請檢查空間與權限），請再試一次。",
+        "runtimePasswordFailed": "錢包已建立，但未能寫入主程序環境變數 AGENT_WALLET_BAICLAW_PASSWORD 或重啟 Gateway"
       }
     }
   },

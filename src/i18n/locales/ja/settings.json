@@ -94,7 +94,8 @@
       "errors": {
         "masterPasswordIncorrect": "マスターパスワードが正しくありません",
         "walletExists": "既にウォレットがあります。削除してから作成してください",
-        "persistFailed": "ウォレットをディスクに完全に書き込めませんでした（容量・権限を確認のうえ再試行してください）。"
+        "persistFailed": "ウォレットをディスクに完全に書き込めませんでした（容量・権限を確認のうえ再試行してください）。",
+        "runtimePasswordFailed": "ウォレットは作成済みですが、AGENT_WALLET_BAICLAW_PASSWORD の設定または Gateway の再起動に失敗しました"
       }
     }
   },

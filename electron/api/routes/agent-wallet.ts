@@ -4,19 +4,20 @@ import {
   deleteAgentWallet,
   getAgentWalletStoragePath,
   listAgentWallets,
+  setAgentWalletBaiclawRuntimePassword,
   unlockAgentWalletVault,
   validateTronPrivateKeyForBankOfAi,
 } from '../../services/agent-wallet/agent-wallet-service';
 import type { HostApiContext } from '../context';
 import { parseJsonBody, sendJson, sendNoContent } from '../route-utils';
+import { logger } from '../../utils/logger';
 
 export async function handleAgentWalletRoutes(
   req: IncomingMessage,
   res: ServerResponse,
   url: URL,
-  _ctx: HostApiContext,
+  ctx: HostApiContext,
 ): Promise<boolean> {
-  void _ctx;
 
   if (url.pathname === '/api/agent-wallets' && req.method === 'GET') {
     try {
@@ -28,6 +29,27 @@ export async function handleAgentWalletRoutes(
         vaultTopologyIncomplete,
         storagePath: getAgentWalletStoragePath(),
       });
+    } catch (error) {
+      sendJson(res, 500, { success: false, error: String(error) });
+    }
+    return true;
+  }
+
+  if (url.pathname === '/api/agent-wallets/runtime-baiclaw-password' && req.method === 'POST') {
+    try {
+      const body = await parseJsonBody<{ masterPassword?: string }>(req);
+      const masterPassword = body.masterPassword ?? '';
+      if (!masterPassword) {
+        sendJson(res, 400, { success: false, error: 'Missing masterPassword' });
+        return true;
+      }
+      setAgentWalletBaiclawRuntimePassword(masterPassword);
+      try {
+        await ctx.gatewayManager.restart();
+      } catch (err) {
+        logger.warn('Gateway restart after AGENT_WALLET_BAICLAW_PASSWORD update failed:', err);
+      }
+      sendJson(res, 200, { success: true });
     } catch (error) {
       sendJson(res, 500, { success: false, error: String(error) });
     }

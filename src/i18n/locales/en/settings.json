@@ -94,7 +94,8 @@
       "errors": {
         "masterPasswordIncorrect": "Incorrect master password.",
         "walletExists": "A wallet already exists. Remove it before creating a new one.",
-        "persistFailed": "The wallet was not fully written to disk (check space and permissions), please try again."
+        "persistFailed": "The wallet was not fully written to disk (check space and permissions), please try again.",
+        "runtimePasswordFailed": "Wallet created, but setting AGENT_WALLET_BAICLAW_PASSWORD / Gateway restart failed"
       }
     }
   },

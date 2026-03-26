@@ -20,12 +20,26 @@ const KV_PWD_FILE = 'kv-password.bin';
 const KV_PWD_PLAIN_FILE = 'kv-password.plain.txt';
 const WALLET_META_FILE = 'wallet_meta.json';
 const WALLETS_CONFIG_FILENAME = 'wallets_config.json';
-const WALLET_MASTER_FILE = 'master.json';
 const WALLET_ID = 'baiclaw_wallet';
 
 const TRON_NETWORK = 'tron';
 /** Legacy wallets created before TRON migration */
 const LEGACY_EVM_NETWORK = 'eip155:1';
+
+/** Main-process env for AgentWallet master password (BAIclaw / OpenClaw child processes). Not OS-wide. */
+export const AGENT_WALLET_BAICLAW_PASSWORD_ENV = 'AGENT_WALLET_BAICLAW_PASSWORD';
+
+/**
+ * Sets the master password on the Electron **main** process `process.env` so forked/spawned
+ * children (e.g. Gateway) inherit it. Does not modify the OS user or shell environment.
+ */
+export function setAgentWalletBaiclawRuntimePassword(password: string): void {
+  process.env[AGENT_WALLET_BAICLAW_PASSWORD_ENV] = password;
+}
+
+export function clearAgentWalletBaiclawRuntimePassword(): void {
+  delete process.env[AGENT_WALLET_BAICLAW_PASSWORD_ENV];
+}
 
 /**
  * Prefer Electron `app.getPath('home')` so the GUI matches the user’s real home directory
@@ -517,50 +531,17 @@ export async function deleteAgentWallet(walletId: string): Promise<void> {
   const provider = getProvider();
   provider.removeWallet(walletId);
 
-  const root = getWalletRoot();
-  const encPath = path.join(root, KV_PWD_FILE);
-  const plainPath = path.join(root, KV_PWD_PLAIN_FILE);
-  const masterPath = path.join(root, WALLET_MASTER_FILE);
-  const configPath = path.join(root, WALLETS_CONFIG_FILENAME);
-  if (fs.existsSync(plainPath)) {
-    try {
-      fs.unlinkSync(plainPath);
-    } catch {
-      // ignore
-    }
-  }
-  if (fs.existsSync(encPath)) {
-    try {
-      fs.unlinkSync(encPath);
-    } catch {
-      // ignore
-    }
-  }
-  if (fs.existsSync(masterPath)) {
-    try {
-      fs.unlinkSync(masterPath);
-    } catch {
-      // ignore
-    }
-  }
-  if (fs.existsSync(configPath)) {
-    try {
-      fs.unlinkSync(configPath);
-    } catch {
-      // ignore
-    }
-  }
-
-  // if (provider.listWallets().length === 0) {
-    // const root = getWalletRoot();
+  if (provider.listWallets().length === 0) {
+    const root = getWalletRoot();
     try {
       fs.rmSync(root, { recursive: true, force: true });
+      clearAgentWalletBaiclawRuntimePassword();
     } catch (err) {
       console.error('[agent-wallet] Failed to remove wallet directory:', err);
       throw err;
     }
-  //   return;
-  // }
+    return;
+  }
 
   const meta = loadWalletMeta();
   if (meta[walletId]) {
