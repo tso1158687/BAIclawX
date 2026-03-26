@@ -13,6 +13,7 @@ import {
   type SecretLoaderFn,
 } from '@bankofai/agent-wallet';
 import { verifyBankOfAiApiKeyByWalletAddress } from './bankofai-tron-verify';
+import { getApiKey } from '../../utils/secure-storage';
 import { logger } from '../../utils/logger';
 
 const KV_PWD_FILE = 'kv-password.bin';
@@ -482,10 +483,12 @@ export async function createAgentWalletFromTronImport(
     throw new Error('WEAK_MASTER_PASSWORD');
   }
 
-  const validation = await validateTronPrivateKeyForBankOfAi(
-    input.privateKeyHex,
-    input.bankOfAiAccountId,
-  );
+  const apiKey = await getApiKey(input.bankOfAiAccountId);
+  if (!apiKey) {
+    throw new Error('VALIDATION_NO_API_KEY');
+  }
+
+  const validation = await validateTronPrivateKeyForBankOfAi(input.privateKeyHex, apiKey);
   if (!validation.ok) {
     throw new Error(`VALIDATION_${validation.errorCode ?? 'FORMAT'}`);
   }
