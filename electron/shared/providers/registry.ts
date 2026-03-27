@@ -21,7 +21,7 @@ export const PROVIDER_DEFINITIONS: ProviderDefinition[] = [
     modelSelectionMode: 'hidden',
     supportsCustomBaseUrl: true,
     supportsCustomModelId: true,
-    defaultBaseUrl: 'https://api.bankofai.io/v1',
+    defaultBaseUrl: 'https://api.b.ai/v1',
     showBaseUrl: false,
     showModelId: false,
     modelIdPlaceholder: 'bankofai-chat',
@@ -33,7 +33,7 @@ export const PROVIDER_DEFINITIONS: ProviderDefinition[] = [
     supportsMultipleAccounts: true,
     sortOrder: 0,
     providerConfig: {
-      baseUrl: 'https://api.bankofai.io/v1',
+      baseUrl: 'https://api.b.ai/v1',
       api: 'openai-completions',
       apiKeyEnv: 'BANKOFAI_API_KEY',
     },

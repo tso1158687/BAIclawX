@@ -137,7 +137,7 @@ export const PROVIDER_TYPE_INFO: ProviderTypeInfo[] = [
     modelSelectionMode: 'hidden',
     supportsCustomBaseUrl: true,
     supportsCustomModelId: true,
-    defaultBaseUrl: 'https://api.bankofai.io/v1',
+    defaultBaseUrl: 'https://api.b.ai/v1',
     showBaseUrl: false,
     showModelId: false,
     modelIdPlaceholder: 'bankofai-chat',

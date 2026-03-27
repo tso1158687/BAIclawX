@@ -134,7 +134,7 @@ export function ChatInput({ onSend, onStop, disabled = false, sending = false, i
   }, [providerAccounts, defaultAccountId]);
   const activeBankOfAiBaseUrl = activeBankOfAiAccount?.baseUrl?.trim()
     || bankOfAiProviderInfo?.defaultBaseUrl
-    || 'https://api.bankofai.io/v1';
+    || 'https://api.b.ai/v1';
   const selectedModelId = activeBankOfAiAccount?.model?.trim()
     || bankOfAiProviderInfo?.defaultModelId
     || 'gpt-5.2';
