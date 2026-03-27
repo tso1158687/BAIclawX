@@ -97,10 +97,10 @@ function expandTildeWalletDir(p: string): string {
 }
 
 function getWalletRoot(): string {
-  const fromEnv = process.env.AGENT_WALLET_DIR?.trim();
-  if (fromEnv) {
-    return expandTildeWalletDir(fromEnv);
-  }
+  // const fromEnv = process.env.AGENT_WALLET_DIR?.trim();
+  // if (fromEnv) {
+  //   return expandTildeWalletDir(fromEnv);
+  // }
   return path.join(resolveUserHomeDir(), '.openclaw/agent-wallet-baiclaw');
 }
 
@@ -415,8 +415,10 @@ export async function listAgentWallets(): Promise<AgentWalletListResult> {
   if (!fs.existsSync(walletsConfigPath())) {
     return { wallets: [], vaultUnlockRequired: false, vaultTopologyIncomplete: false };
   } else {
-    if (!hasAgentWalletTopologyOnDisk()) {
-      const root = getWalletRoot();
+    const root = getWalletRoot();
+    const hasPwdFile = fs.existsSync(path.join(root, KV_PWD_FILE));
+    console.log('111111111', root, hasPwdFile, hasAgentWalletTopologyOnDisk())
+    if (!(hasAgentWalletTopologyOnDisk() && hasPwdFile)) {
       try {
         fs.rmSync(root, { recursive: true, force: true });
         clearAgentWalletBaiclawRuntimePassword();
@@ -452,6 +454,7 @@ export async function listAgentWallets(): Promise<AgentWalletListResult> {
 
   for (const [id, , isActive] of rows) {
     const resolved = await resolveWalletAddress(provider, id);
+    console.log(id, resolved)
     if (!resolved) continue;
     if (id !== WALLET_ID) continue;
     out.push({
