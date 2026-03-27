@@ -164,6 +164,11 @@ export async function handleAgentWalletRoutes(
       await deleteAgentWallet(walletId);
       sendNoContent(res);
     } catch (error) {
+      sendJson(res, 500, { success: false, error: String(error) });
+    }
+    return true;
+  }
+
   if (url.pathname === '/api/agent-wallet/config' && req.method === 'GET') {
     sendJson(res, 200, await getAgentWalletRuntimeConfig());
     return true;
