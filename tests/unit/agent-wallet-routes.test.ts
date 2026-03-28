@@ -6,6 +6,15 @@ const sendJsonMock = vi.fn();
 const getAgentWalletRuntimeConfigMock = vi.fn();
 const getAgentWalletBaiclawPasswordMock = vi.fn();
 const setAgentWalletBaiclawPasswordMock = vi.fn();
+const listAgentWalletsMock = vi.fn();
+const unlockAgentWalletVaultMock = vi.fn();
+const setAgentWalletBaiclawRuntimePasswordMock = vi.fn();
+const validateTronPrivateKeyForBankOfAiMock = vi.fn();
+const createAgentWalletFromTronImportMock = vi.fn();
+const deleteAgentWalletMock = vi.fn();
+const getAgentWalletStoragePathMock = vi.fn();
+const syncGatewayConfigBeforeLaunchMock = vi.fn();
+const getAllSettingsMock = vi.fn();
 const setSettingMock = vi.fn();
 
 vi.mock('@electron/api/route-utils', () => ({
@@ -22,13 +31,30 @@ vi.mock('@electron/services/secrets/app-secret-store', () => ({
   setAgentWalletBaiclawPassword: (...args: unknown[]) => setAgentWalletBaiclawPasswordMock(...args),
 }));
 
+vi.mock('@electron/services/agent-wallet/agent-wallet-service', () => ({
+  listAgentWallets: (...args: unknown[]) => listAgentWalletsMock(...args),
+  unlockAgentWalletVault: (...args: unknown[]) => unlockAgentWalletVaultMock(...args),
+  setAgentWalletBaiclawRuntimePassword: (...args: unknown[]) => setAgentWalletBaiclawRuntimePasswordMock(...args),
+  validateTronPrivateKeyForBankOfAi: (...args: unknown[]) => validateTronPrivateKeyForBankOfAiMock(...args),
+  createAgentWalletFromTronImport: (...args: unknown[]) => createAgentWalletFromTronImportMock(...args),
+  deleteAgentWallet: (...args: unknown[]) => deleteAgentWalletMock(...args),
+  getAgentWalletStoragePath: (...args: unknown[]) => getAgentWalletStoragePathMock(...args),
+}));
+
+vi.mock('@electron/gateway/config-sync', () => ({
+  syncGatewayConfigBeforeLaunch: (...args: unknown[]) => syncGatewayConfigBeforeLaunchMock(...args),
+}));
+
 vi.mock('@electron/utils/store', () => ({
+  getAllSettings: (...args: unknown[]) => getAllSettingsMock(...args),
   setSetting: (...args: unknown[]) => setSettingMock(...args),
 }));
 
 describe('handleAgentWalletRoutes', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    getAllSettingsMock.mockResolvedValue({});
+    syncGatewayConfigBeforeLaunchMock.mockResolvedValue(undefined);
   });
 
   it('returns runtime config without requiring a password payload', async () => {
@@ -88,6 +114,7 @@ describe('handleAgentWalletRoutes', () => {
     expect(handled).toBe(true);
     expect(setSettingMock).toHaveBeenCalledWith('agentWalletSelectedWalletId', 'wallet-b');
     expect(setAgentWalletBaiclawPasswordMock).toHaveBeenCalledWith('New-password-123!');
+    expect(syncGatewayConfigBeforeLaunchMock).not.toHaveBeenCalled();
     expect(restart).toHaveBeenCalledTimes(1);
     expect(sendJsonMock).toHaveBeenCalledWith(expect.anything(), 200, {
       success: true,
@@ -98,5 +125,33 @@ describe('handleAgentWalletRoutes', () => {
         hasPassword: true,
       },
     });
+  });
+
+  it('awaits vault unlock before syncing config and restarting gateway', async () => {
+    parseJsonBodyMock.mockResolvedValueOnce({
+      masterPassword: 'Unlock-password-123!',
+    });
+    unlockAgentWalletVaultMock.mockResolvedValueOnce(undefined);
+    const restart = vi.fn().mockResolvedValue(undefined);
+    const ctx = {
+      gatewayManager: {
+        restart,
+      },
+    } as never;
+
+    const { handleAgentWalletRoutes } = await import('@electron/api/routes/agent-wallet');
+    const handled = await handleAgentWalletRoutes(
+      { method: 'POST' } as IncomingMessage,
+      {} as ServerResponse,
+      new URL('http://127.0.0.1:3210/api/agent-wallets/unlock'),
+      ctx,
+    );
+
+    expect(handled).toBe(true);
+    expect(unlockAgentWalletVaultMock).toHaveBeenCalledWith('Unlock-password-123!');
+    expect(setAgentWalletBaiclawRuntimePasswordMock).toHaveBeenCalledWith('Unlock-password-123!');
+    expect(syncGatewayConfigBeforeLaunchMock).toHaveBeenCalledWith({});
+    expect(restart).toHaveBeenCalledTimes(1);
+    expect(sendJsonMock).toHaveBeenCalledWith(expect.anything(), 200, { success: true });
   });
 });

@@ -13,12 +13,22 @@ import { parseJsonBody, sendJson, sendNoContent } from '../route-utils';
 import { logger } from '../../utils/logger';
 import { getAgentWalletBaiclawPassword, setAgentWalletBaiclawPassword } from '../../services/secrets/app-secret-store';
 import { getAgentWalletRuntimeConfig } from '../../utils/agent-wallet';
-import { setSetting } from '../../utils/store';
+import { getAllSettings, setSetting } from '../../utils/store';
+import { syncGatewayConfigBeforeLaunch } from '../../gateway/config-sync';
 
 async function restartGatewayIfRunning(ctx: HostApiContext): Promise<void> {
   if (ctx.gatewayManager.getStatus().state === 'running') {
     await ctx.gatewayManager.restart();
   }
+}
+
+async function syncGatewayConfigAndRestart(ctx: HostApiContext): Promise<void> {
+  try {
+    await syncGatewayConfigBeforeLaunch(await getAllSettings());
+  } catch (err) {
+    logger.warn('Gateway config sync before agent-wallet restart failed:', err);
+  }
+  await ctx.gatewayManager.restart();
 }
 
 export async function handleAgentWalletRoutes(
@@ -54,7 +64,7 @@ export async function handleAgentWalletRoutes(
       }
       setAgentWalletBaiclawRuntimePassword(masterPassword);
       try {
-        await ctx.gatewayManager.restart();
+        await syncGatewayConfigAndRestart(ctx);
       } catch (err) {
         logger.warn('Gateway restart after AGENT_WALLET_BAICLAW_PASSWORD update failed:', err);
       }
@@ -73,10 +83,10 @@ export async function handleAgentWalletRoutes(
         sendJson(res, 400, { success: false, error: 'Missing masterPassword' });
         return true;
       }
-      unlockAgentWalletVault(masterPassword);
+      await unlockAgentWalletVault(masterPassword);
       setAgentWalletBaiclawRuntimePassword(masterPassword);
       try {
-        await ctx.gatewayManager.restart();
+        await syncGatewayConfigAndRestart(ctx);
       } catch (err) {
         logger.warn('Gateway restart after vault unlock failed:', err);
       }
