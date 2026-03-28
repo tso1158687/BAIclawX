@@ -74,10 +74,8 @@
     },
     {
       "slug": "recharge-skill",
-      "repo": "BofAI/skills",
-      "repoPath": "recharge-skill",
-      "ref": "main",
-      "version": "main",
+      "localPath": "resources/skills/local/recharge-skill",
+      "version": "local-dev",
       "autoEnable": true
     },
     {

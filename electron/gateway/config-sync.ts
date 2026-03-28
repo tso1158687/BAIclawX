@@ -15,6 +15,9 @@ import { syncProxyConfigToOpenClaw } from '../utils/openclaw-proxy';
 import { logger } from '../utils/logger';
 import { prependPathEntry } from '../utils/env-path';
 import { loadAgentWalletRuntimeEnv } from '../utils/agent-wallet';
+import { listProviderAccounts } from '../services/providers/provider-store';
+import type { ProviderAccount } from '../shared/providers/types';
+import { getSkillConfig, updateSkillConfig } from '../utils/skill-config';
 
 export interface GatewayLaunchContext {
   appSettings: Awaited<ReturnType<typeof getAllSettings>>;
@@ -27,6 +30,67 @@ export interface GatewayLaunchContext {
   loadedProviderKeyCount: number;
   proxySummary: string;
   channelStartupSummary: string;
+}
+
+const RECHARGE_SKILL_KEY = 'recharge-skill';
+const BANKOFAI_SKILL_BASE_URL = 'https://chat.ainft.com';
+
+export function pickCompatibilityProviderAccount(
+  accounts: ProviderAccount[],
+  vendorId: string,
+  defaultProviderId?: string,
+): ProviderAccount | null {
+  const candidates = accounts
+    .filter((account) => account.vendorId === vendorId && account.enabled !== false)
+    .sort((left, right) => {
+      if (left.id === defaultProviderId) return -1;
+      if (right.id === defaultProviderId) return 1;
+      if (left.isDefault && !right.isDefault) return -1;
+      if (right.isDefault && !left.isDefault) return 1;
+      return right.updatedAt.localeCompare(left.updatedAt);
+    });
+
+  return candidates[0] ?? null;
+}
+
+async function syncRechargeSkillCompatibilityConfig(defaultProviderId?: string): Promise<void> {
+  try {
+    const accounts = await listProviderAccounts();
+    const bankOfAiAccount = pickCompatibilityProviderAccount(accounts, 'bankofai', defaultProviderId);
+    const current = await getSkillConfig(RECHARGE_SKILL_KEY);
+    const currentEnv = { ...(current?.env ?? {}) };
+
+    if (!bankOfAiAccount) {
+      if (!('BANKOFAI_API_KEY' in currentEnv) && !('BANKOFAI_BASE_URL' in currentEnv)) {
+        return;
+      }
+      delete currentEnv.BANKOFAI_API_KEY;
+      delete currentEnv.BANKOFAI_BASE_URL;
+      await updateSkillConfig(RECHARGE_SKILL_KEY, { env: currentEnv });
+      return;
+    }
+
+    const key = await getApiKey(bankOfAiAccount.id);
+    if (!key) {
+      if (!('BANKOFAI_API_KEY' in currentEnv) && !('BANKOFAI_BASE_URL' in currentEnv)) {
+        return;
+      }
+      delete currentEnv.BANKOFAI_API_KEY;
+      delete currentEnv.BANKOFAI_BASE_URL;
+      await updateSkillConfig(RECHARGE_SKILL_KEY, { env: currentEnv });
+      return;
+    }
+
+    await updateSkillConfig(RECHARGE_SKILL_KEY, {
+      env: {
+        ...currentEnv,
+        BANKOFAI_API_KEY: key,
+        BANKOFAI_BASE_URL: (currentEnv.BANKOFAI_BASE_URL || BANKOFAI_SKILL_BASE_URL).trim(),
+      },
+    });
+  } catch (err) {
+    logger.warn('Failed to sync recharge-skill compatibility config:', err);
+  }
 }
 
 // ── Auto-upgrade bundled plugins on startup ──────────────────────
@@ -226,6 +290,12 @@ function ensureConfiguredPluginsUpgraded(configuredChannels: string[]): void {
 export async function syncGatewayConfigBeforeLaunch(
   appSettings: Awaited<ReturnType<typeof getAllSettings>>,
 ): Promise<void> {
+  try {
+    await syncRechargeSkillCompatibilityConfig(await getDefaultProvider());
+  } catch (err) {
+    logger.warn('Failed to sync recharge-skill compatibility config before launch:', err);
+  }
+
   await syncProxyConfigToOpenClaw(appSettings);
 
   try {
@@ -260,9 +330,10 @@ async function loadProviderEnv(): Promise<{ providerEnv: Record<string, string>;
   const providerEnv: Record<string, string> = {};
   const providerTypes = getKeyableProviderTypes();
   let loadedProviderKeyCount = 0;
+  let defaultProviderId: string | undefined;
 
   try {
-    const defaultProviderId = await getDefaultProvider();
+    defaultProviderId = await getDefaultProvider();
     if (defaultProviderId) {
       const defaultProvider = await getProvider(defaultProviderId);
       const defaultProviderType = defaultProvider?.type;
@@ -292,6 +363,26 @@ async function loadProviderEnv(): Promise<{ providerEnv: Record<string, string>;
     } catch (err) {
       logger.warn(`Failed to load API key for ${providerType}:`, err);
     }
+  }
+
+  // Compatibility shim for legacy/local BANK OF AI skills that still expect
+  // fixed BANKOFAI_* env vars instead of account-scoped provider ids.
+  try {
+    const bankOfAiEnvVar = getProviderEnvVar('bankofai');
+    if (bankOfAiEnvVar && !providerEnv[bankOfAiEnvVar]) {
+      const accounts = await listProviderAccounts();
+      const bankOfAiAccount = pickCompatibilityProviderAccount(accounts, 'bankofai', defaultProviderId);
+      if (bankOfAiAccount) {
+        const key = await getApiKey(bankOfAiAccount.id);
+        if (key) {
+          providerEnv[bankOfAiEnvVar] = key;
+          providerEnv.BANKOFAI_BASE_URL = BANKOFAI_SKILL_BASE_URL;
+          loadedProviderKeyCount++;
+        }
+      }
+    }
+  } catch (err) {
+    logger.warn('Failed to load compatibility BANK OF AI environment:', err);
   }
 
   return { providerEnv, loadedProviderKeyCount };
