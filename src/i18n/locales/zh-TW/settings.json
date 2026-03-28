@@ -66,7 +66,7 @@
       "step1": {
         "label": "綁定 BANK OF AI 登入錢包私鑰",
         "howTo": "了解如何取得私鑰",
-        "howToUrl": "https://docs.bankofai.io",
+        "howToUrl": "https://docs.b.ai/BAIclaw/operation-guide/Get-Wallet-Secret/",
         "placeholder": "64 字元十六進位私鑰",
         "errorFormat": "私鑰格式不正確",
         "errorMismatch": "私鑰對應地址與 API Key 帳戶的 TRON 地址不一致",

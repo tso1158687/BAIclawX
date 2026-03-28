@@ -66,7 +66,7 @@
       "step1": {
         "label": "BANK OF AI ログインウォレットの秘密鍵を紐付け",
         "howTo": "秘密鍵の取得方法",
-        "howToUrl": "https://docs.bankofai.io",
+        "howToUrl": "https://docs.b.ai/BAIclaw/operation-guide/Get-Wallet-Secret/",
         "placeholder": "64 文字の 16 進秘密鍵",
         "errorFormat": "秘密鍵の形式が正しくありません",
         "errorMismatch": "秘密鍵に対応するアドレスが、API キーの TRON アドレスと一致しません",

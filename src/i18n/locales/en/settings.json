@@ -66,7 +66,7 @@
       "step1": {
         "label": "Bind BANK OF AI login wallet private key",
         "howTo": "How to get your private key",
-        "howToUrl": "https://docs.bankofai.io",
+        "howToUrl": "https://docs.b.ai/BAIclaw/operation-guide/Get-Wallet-Secret/",
         "placeholder": "64-character hex private key",
         "errorFormat": "Invalid private key format.",
         "errorMismatch": "The address derived from this private key does not match the TRON address linked to your BANK OF AI API key.",

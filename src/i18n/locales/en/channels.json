@@ -61,7 +61,7 @@
     "meta": {
         "telegram": {
             "description": "Connect Telegram using a bot token from @BotFather",
-            "docsUrl": "https://icnnp7d0dymg.feishu.cn/wiki/TjiGwxsMWi7hpDkDAQBc0ydMnEf#MEkKdqXP1orZU2x4SrFcdUHgnl1",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/Telegram/",
             "fields": {
                 "botToken": {
                     "label": "Bot Token",
@@ -83,7 +83,7 @@
         },
         "discord": {
             "description": "Connect Discord using a bot token from Developer Portal",
-            "docsUrl": "https://icnnp7d0dymg.feishu.cn/wiki/BkOywJYCAiYRN9k4KTTceKPMnxg#QS6LdxnA2oNtfcxtFc8cgabnnNd",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/Discord/",
             "fields": {
                 "token": {
                     "label": "Bot Token",
@@ -111,7 +111,7 @@
         },
         "whatsapp": {
             "description": "Connect WhatsApp by scanning a QR code (no phone number required)",
-            "docsUrl": "https://icnnp7d0dymg.feishu.cn/wiki/ES7fwUfH8iGl8FkHYfFcyWB3n4d#doxcnUElomBZLi0NnKLUzn6zLbd",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/WhatsApp/",
             "instructions": [
                 "Open WhatsApp on your phone",
                 "Go to Settings > Linked Devices > Link a Device",
@@ -121,7 +121,7 @@
         },
         "dingtalk": {
             "description": "Connect DingTalk via OpenClaw channel plugin (Stream mode)",
-            "docsUrl": "https://icnnp7d0dymg.feishu.cn/wiki/Y5eNwiSiZidkLskrwtJc1rUln0b#doxcnDgA78n43DbkiQjI1OqUA7b",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/DingTalk/",
             "fields": {
                 "clientId": {
                     "label": "Client ID (AppKey)",
@@ -168,7 +168,7 @@
         },
         "feishu": {
             "description": "Connect Feishu/Lark bot via WebSocket",
-            "docsUrl": "https://icnnp7d0dymg.feishu.cn/wiki/GKn8wOvHnibpPNkNkPzcAvGlnzK#GdHUdp9t9oqyegxwV8ScLvVGn1c",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/Feishu/",
             "fields": {
                 "appId": {
                     "label": "App ID",
@@ -188,7 +188,7 @@
         },
         "wecom": {
             "description": "Connect WeCom Bot via plugin",
-            "docsUrl": "https://docs-test.b.ai/BAIclaw/How%20to%20Add%20Channels/WeCom/",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/WeCom/",
             "fields": {
                 "botId": {
                     "label": "Bot ID",
@@ -319,7 +319,7 @@
         },
         "qqbot": {
             "description": "Connect QQ Bot via @sliverp/qqbot plugin",
-            "docsUrl": "https://docs-test.b.ai/BAIclaw/How%20to%20Add%20Channels/QQ%20Bot/",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/QQ-Bot/",
             "fields": {
                 "appId": {
                     "label": "App ID",

@@ -66,7 +66,7 @@
       "step1": {
         "label": "绑定 BANK OF AI 登录钱包私钥",
         "howTo": "了解如何获取私钥",
-        "howToUrl": "https://docs.bankofai.io",
+        "howToUrl": "https://docs.b.ai/BAIclaw/operation-guide/Get-Wallet-Secret/",
         "placeholder": "64 位十六进制私钥",
         "errorFormat": "私钥格式不正确",
         "errorMismatch": "私钥对应的地址与 BANK OF AI 的 API Key 所在账户地址不一致",

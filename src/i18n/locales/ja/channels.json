@@ -61,7 +61,7 @@
     "meta": {
         "telegram": {
             "description": "@BotFather からのボットトークンを使用して Telegram に接続します",
-            "docsUrl": "https://icnnp7d0dymg.feishu.cn/wiki/TjiGwxsMWi7hpDkDAQBc0ydMnEf#MEkKdqXP1orZU2x4SrFcdUHgnl1",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/Telegram/",
             "fields": {
                 "botToken": {
                     "label": "ボットトークン",
@@ -83,7 +83,7 @@
         },
         "discord": {
             "description": "Developer Portal からのボットトークンを使用して Discord に接続します",
-            "docsUrl": "https://icnnp7d0dymg.feishu.cn/wiki/BkOywJYCAiYRN9k4KTTceKPMnxg#QS6LdxnA2oNtfcxtFc8cgabnnNd",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/Discord/",
             "fields": {
                 "token": {
                     "label": "ボットトークン",
@@ -111,7 +111,7 @@
         },
         "whatsapp": {
             "description": "QRコードをスキャンして WhatsApp に接続します（電話番号は不要です）",
-            "docsUrl": "https://icnnp7d0dymg.feishu.cn/wiki/ES7fwUfH8iGl8FkHYfFcyWB3n4d#doxcnUElomBZLi0NnKLUzn6zLbd",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/WhatsApp/",
             "instructions": [
                 "携帯電話で WhatsApp を開きます",
                 "設定 > リンクされたデバイス > デバイスをリンク に移動します",
@@ -121,7 +121,7 @@
         },
         "dingtalk": {
             "description": "OpenClaw のチャンネルプラグイン経由で DingTalk に接続します（Stream モード）",
-            "docsUrl": "https://icnnp7d0dymg.feishu.cn/wiki/Y5eNwiSiZidkLskrwtJc1rUln0b#doxcnDgA78n43DbkiQjI1OqUA7b",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/DingTalk/",
             "fields": {
                 "clientId": {
                     "label": "Client ID (AppKey)",
@@ -168,7 +168,7 @@
         },
         "feishu": {
             "description": "WebSocket 経由で Feishu/Lark ボットに接続します",
-            "docsUrl": "https://icnnp7d0dymg.feishu.cn/wiki/GKn8wOvHnibpPNkNkPzcAvGlnzK#GdHUdp9t9oqyegxwV8ScLvVGn1c",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/Feishu/",
             "fields": {
                 "appId": {
                     "label": "App ID",
@@ -188,7 +188,7 @@
         },
         "wecom": {
             "description": "プラグイン経由で WeCom Bot (企業微信) に接続します",
-            "docsUrl": "https://docs-test.b.ai/BAIclaw/How%20to%20Add%20Channels/WeCom/",
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/WeCom/",
             "fields": {
                 "botId": {
                     "label": "ボット ID",
@@ -334,7 +334,7 @@
                 "App ID と Client Secret を取得します",
                 "認証情報を入力します"
             ],
-            "docsUrl": "https://docs-test.b.ai/BAIclaw/How%20to%20Add%20Channels/QQ%20Bot/"
+            "docsUrl": "https://docs.b.ai/BAIclaw/how-to-add-channels/QQ-Bot/"
         }
     },
     "viewDocs": "ドキュメントを表示"
