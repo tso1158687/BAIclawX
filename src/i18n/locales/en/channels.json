@@ -188,7 +188,7 @@
         },
         "wecom": {
             "description": "Connect WeCom Bot via plugin",
-            "docsUrl": "https://docs-test.b.ai/BAIclaw/How%20to%20Add%20Channels/WeCom/",
+            "docsUrl": "https://docs.b.ai/BAIclaw",
             "fields": {
                 "botId": {
                     "label": "Bot ID",
@@ -319,7 +319,7 @@
         },
         "qqbot": {
             "description": "Connect QQ Bot via @sliverp/qqbot plugin",
-            "docsUrl": "https://docs-test.b.ai/BAIclaw/How%20to%20Add%20Channels/QQ%20Bot/",
+            "docsUrl": "https://docs.b.ai/BAIclaw",
             "fields": {
                 "appId": {
                     "label": "App ID",

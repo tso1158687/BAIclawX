@@ -274,7 +274,7 @@
     "title": "About",
     "appName": "BAIclaw",
     "tagline": "Graphical AI Assistant",
-    "basedOn": "Based on OpenClaw and ClawX",
+    "basedOn": "Based on OpenClaw",
     "version": "Version {{version}}",
     "docs": "Website",
     "github": "GitHub"

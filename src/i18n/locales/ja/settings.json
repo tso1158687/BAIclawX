@@ -273,7 +273,7 @@
     "title": "バージョン情報",
     "appName": "BAIclaw",
     "tagline": "グラフィカル AI アシスタント",
-    "basedOn": "OpenClaw と ClawX をベースにしています",
+    "basedOn": "OpenClaw をベースにしています",
     "version": "バージョン {{version}}",
     "docs": "公式サイト",
     "github": "GitHub"

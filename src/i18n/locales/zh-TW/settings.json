@@ -274,7 +274,7 @@
     "title": "關於",
     "appName": "BAIclaw",
     "tagline": "圖形化 AI 助手",
-    "basedOn": "基於 OpenClaw 和 ClawX",
+    "basedOn": "基於 OpenClaw",
     "version": "版本 {{version}}",
     "docs": "官網",
     "github": "GitHub"

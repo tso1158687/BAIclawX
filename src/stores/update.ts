@@ -52,7 +52,7 @@ interface UpdateState {
 
 export const useUpdateStore = create<UpdateState>((set, get) => ({
   status: 'idle',
-  currentVersion: '1.0.0',
+  currentVersion: '0.9.0',
   updateInfo: null,
   progress: null,
   error: null,

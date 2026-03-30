@@ -188,7 +188,7 @@
         },
         "wecom": {
             "description": "プラグイン経由で WeCom Bot (企業微信) に接続します",
-            "docsUrl": "https://docs-test.b.ai/BAIclaw/How%20to%20Add%20Channels/WeCom/",
+            "docsUrl": "https://docs.b.ai/BAIclaw",
             "fields": {
                 "botId": {
                     "label": "ボット ID",
@@ -334,7 +334,7 @@
                 "App ID と Client Secret を取得します",
                 "認証情報を入力します"
             ],
-            "docsUrl": "https://docs-test.b.ai/BAIclaw/How%20to%20Add%20Channels/QQ%20Bot/"
+            "docsUrl": "https://docs.b.ai/BAIclaw"
         }
     },
     "viewDocs": "ドキュメントを表示"
