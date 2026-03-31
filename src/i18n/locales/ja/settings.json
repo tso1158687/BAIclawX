@@ -61,7 +61,7 @@
         "subtitle": "Agent Wallet は AI エージェント向けのローカル安全な Web3 ウォレットです",
         "body": "BAIclaw は、現在使用している BAI API-Key に関連付けられたウォレットの秘密鍵をインポートして Agent Wallet を作成することをサポートしています\nAgent Wallet を設定することで、BAIclaw は自己充電、送金、トークン交換、流動性プール管理、x402 プロトコルの有料リソースへのアクセスなど、様々な web3 スキルを実現できます。",
         "learnMore": "Agent Wallet の詳細",
-        "learnMoreUrl": "https://docs.bankofai.io/Agent-Wallet/Intro/"
+        "learnMoreUrl": "https://docs.b.ai/BAIclaw/Agent-Wallet/"
       },
       "step1": {
         "label": "BAI ログインウォレットの秘密鍵を紐付け",

@@ -61,7 +61,7 @@
         "subtitle": "Agent Wallet is a locally secure Web3 wallet built for AI agents.",
         "body": "BAIclaw supports importing the private key associated with your current BAI API-Key to create an Agent Wallet\nBy configuring Agent Wallet, BAIclaw can enable self-recharge, transfers, token swaps, liquidity pool management, and access to x402 protocol paid resources and other web3 skills.",
         "learnMore": "Learn more about Agent Wallet",
-        "learnMoreUrl": "https://docs.bankofai.io/Agent-Wallet/Intro/"
+        "learnMoreUrl": "https://docs.b.ai/BAIclaw/Agent-Wallet/"
       },
       "step1": {
         "label": "Bind BAI login wallet private key",

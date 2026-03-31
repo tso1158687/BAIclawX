@@ -1,4 +1,4 @@
-const VERIFY_URL = 'https://chat-pre.ainft.com/webapi/apikey/verify';
+const VERIFY_URL = 'https://chat.b.ai/webapi/apikey/verify';
 
 type VerifyResponse = {
   valid?: boolean;

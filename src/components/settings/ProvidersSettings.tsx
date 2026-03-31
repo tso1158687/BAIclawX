@@ -142,6 +142,7 @@ export function ProvidersSettings() {
   const [editingProvider, setEditingProvider] = useState<string | null>(null);
   const [agentWalletBoundModalOpen, setAgentWalletBoundModalOpen] = useState(false);
   const [agentWalletBoundModalType, setAgentWalletBoundModalType] = useState(0);
+  const [walletCheckLoading, setWalletCheckLoading] = useState(true);
   const [hasWalletBound, setHasWalletBound] = useState(false);
   const visibleAccounts = useMemo(() => filterVisibleProviderAccounts(accounts), [accounts]);
   const visibleStatuses = useMemo(() => filterVisibleProviderStatuses(statuses), [statuses]);
@@ -160,6 +161,7 @@ export function ProvidersSettings() {
 
   // Pre-fetch wallet status on mount
   const checkWalletStatus = useCallback(async () => {
+    setWalletCheckLoading(true);
     try {
       const data = await hostApiFetch<{
         wallets?: { id: string }[];
@@ -175,6 +177,8 @@ export function ProvidersSettings() {
     } catch {
       // If API fails, allow editing so the page stays usable
       setHasWalletBound(false);
+    } finally {
+      setWalletCheckLoading(false);
     }
   }, []);
 
@@ -224,24 +228,6 @@ export function ProvidersSettings() {
       setAgentWalletBoundModalType(2);
       setAgentWalletBoundModalOpen(true);
       return;
-    }
-    try {
-      const data = await hostApiFetch<{
-        wallets?: { id: string }[];
-        vaultUnlockRequired?: boolean;
-        vaultTopologyIncomplete?: boolean;
-      }>('/api/agent-wallets');
-      if (
-        data.vaultUnlockRequired
-        || data.vaultTopologyIncomplete
-        || (data.wallets && data.wallets.length > 0)
-      ) {
-        setAgentWalletBoundModalType(2);
-        setAgentWalletBoundModalOpen(true);
-        return;
-      }
-    } catch {
-      // If the wallet API fails, allow editing so the Models page stays usable.
     }
     try {
       await removeAccount(providerId);
