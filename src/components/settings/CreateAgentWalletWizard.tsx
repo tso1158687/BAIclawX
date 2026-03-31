@@ -68,11 +68,12 @@ export function CreateAgentWalletWizard({
   const [passwordMismatchError, setPasswordMismatchError] = useState(false);
 
   const handleBack = useCallback(() => {
-    if (step === 2) {
+    if (step === 2 || step === 1) {
       setPrivateKey('');
     }
     setStep((s) => (s - 1) as Step);
   }, [step]);
+
   const resetTransientErrors = useCallback(() => {
     setKeyErrorFormat(false);
     setKeyErrorMismatch(false);
@@ -92,6 +93,11 @@ export function CreateAgentWalletWizard({
   }, [onClose, resetTransientErrors]);
 
   if (!open) return null;
+
+  const handleNextFromStep0 = async () => {
+    resetTransientErrors();
+    setStep(1);
+  }
 
   const handleNextFromStep1 = async () => {
     resetTransientErrors();
@@ -376,7 +382,7 @@ export function CreateAgentWalletWizard({
             <Button
               type="button"
               className="rounded-full px-6 bg-[#0a84ff] hover:bg-[#007aff] text-white"
-              onClick={() => setStep(1)}
+              onClick={() => void handleNextFromStep0()}
             >
               {t('web3.wizard.next')}
             </Button>
