@@ -2,10 +2,10 @@
     "gatewayNotRunning": "Gateway Not Running",
     "gatewayRequired": "The OpenClaw Gateway needs to be running to use chat. It will start automatically, or you can start it from Settings.",
     "providerGate": {
-        "missingTitle": "Set up BANK OF AI before chatting",
-        "missingDescription": "Chat is available after you add an BANK OF AI account and choose a default model provider.",
-        "defaultRequiredTitle": "Switch the default provider to BANK OF AI",
-        "defaultRequiredDescription": "BAIclaw chat only runs with BANK OF AI right now. Open Models and set an BANK OF AI account as the default provider.",
+        "missingTitle": "Set up BAI before chatting",
+        "missingDescription": "Chat is available after you add a BAI account and choose a default model provider.",
+        "defaultRequiredTitle": "Switch the default provider to BAI",
+        "defaultRequiredDescription": "BAIclaw chat only runs with BAI right now. Open Models and set a BAI account as the default provider.",
         "openModels": "Open Models"
     },
     "welcome": {
@@ -29,9 +29,9 @@
         "pickAgent": "Choose agent",
         "pickModel": "Choose model: {{model}}",
         "modelPickerTitle": "Choose model",
-        "modelPickerLoading": "Loading available BANK OF AI models...",
+        "modelPickerLoading": "Loading available BAI models...",
         "modelPickerEmpty": "No models are currently available.",
-        "modelPickerMissingConfig": "No usable BANK OF AI API key or Base URL was found.",
+        "modelPickerMissingConfig": "No usable BAI API key or Base URL was found.",
         "modelPickerError": "Failed to load models: {{error}}",
         "refreshModels": "Refresh models",
         "clearTarget": "Clear target agent",
