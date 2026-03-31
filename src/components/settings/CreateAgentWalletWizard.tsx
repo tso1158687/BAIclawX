@@ -67,6 +67,12 @@ export function CreateAgentWalletWizard({
   const [passwordPolicyError, setPasswordPolicyError] = useState(false);
   const [passwordMismatchError, setPasswordMismatchError] = useState(false);
 
+  const handleBack = useCallback(() => {
+    if (step === 2) {
+      setPrivateKey('');
+    }
+    setStep((s) => (s - 1) as Step);
+  }, [step]);
   const resetTransientErrors = useCallback(() => {
     setKeyErrorFormat(false);
     setKeyErrorMismatch(false);
@@ -194,16 +200,16 @@ export function CreateAgentWalletWizard({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="agent-wallet-wizard-title"
     >
-      <Card className="w-full max-w-lg rounded-2xl border border-black/10 dark:border-white/10 shadow-xl bg-card">
-        <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3 pr-1 pt-1">
+      <Card className="w-full max-w-lg rounded-3xl border-0 shadow-2xl bg-card">
+        <CardHeader className="relative pb-2 shrink-0">
           <CardTitle
             id="agent-wallet-wizard-title"
-            className="text-lg font-semibold text-foreground leading-tight pt-1.5 pr-2"
+            className="text-2xl font-serif font-normal"
           >
             {t('web3.wizard.title')}
           </CardTitle>
@@ -211,7 +217,7 @@ export function CreateAgentWalletWizard({
             type="button"
             variant="ghost"
             size="icon"
-            className="h-9 w-9 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
+            className="absolute right-4 top-4 rounded-full h-8 w-8 -mr-2 -mt-2 text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5"
             onClick={handleClose}
             aria-label={t('common:actions.close')}
           >
@@ -219,11 +225,11 @@ export function CreateAgentWalletWizard({
           </Button>
         </CardHeader>
 
-        <CardContent className="space-y-4 pb-2 min-h-[200px]">
+        <CardContent className="overflow-y-auto flex-1 p-6">
           {step === 0 && (
             <div className="space-y-3 text-[14px] leading-relaxed text-foreground/90">
               <p className="font-medium text-foreground">{t('web3.wizard.step0.subtitle')}</p>
-              <p className="text-muted-foreground whitespace-pre-line pt-6">{t('web3.wizard.step0.body')}</p>
+              <p className="text-muted-foreground whitespace-pre-line pt-0">{t('web3.wizard.step0.body')}</p>
               <button
                 type="button"
                 className="text-[13px] text-[#0a84ff] hover:underline text-left"
@@ -239,7 +245,7 @@ export function CreateAgentWalletWizard({
           {step === 1 && (
             <div className="space-y-3 pt-6">
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <Label className="text-[13px] font-medium">{t('web3.wizard.step1.label')}</Label>
+                <Label className="text-[13px] font-medium">{t('web3.wizard.step1.label')} {t('web3.wizard.step1.desc')}</Label>
                 <button
                   type="button"
                   className="text-[12px] text-[#0a84ff] hover:underline shrink-0"
@@ -353,13 +359,13 @@ export function CreateAgentWalletWizard({
           )}
         </CardContent>
 
-        <CardFooter className="flex justify-end gap-2 border-t border-black/5 dark:border-white/10 pt-4">
+        <CardFooter className="flex justify-end gap-3 pt-4">
           {step < 3 ? (
             <Button
               type="button"
               variant="outline"
               className="rounded-full px-5"
-              onClick={step === 0 ? handleClose : () => setStep((s) => (s - 1) as Step)}
+              onClick={step === 0 ? handleClose : handleBack}
               disabled={validatingKey || submitting}
             >
               {step === 0 ? t('web3.wizard.cancel') : t('web3.wizard.back')}

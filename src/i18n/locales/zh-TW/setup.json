@@ -68,10 +68,10 @@
         "modelId": "模型 ID",
         "modelIdDesc": "供應商的模型識別碼（例如 deepseek-ai/DeepSeek-V3）",
         "refreshModels": "重新整理",
-        "bankofaiModelsHint": "BANK OF AI 可依目前的 Base URL 與 API Key 載入可用模型清單。",
-        "bankofaiModelsLoading": "正在載入 BANK OF AI 可用模型...",
+        "bankofaiModelsHint": "BAI 可依目前的 Base URL 與 API Key 載入可用模型清單。",
+        "bankofaiModelsLoading": "正在載入 BAI 可用模型...",
         "bankofaiModelsMissingConfig": "請先輸入 Base URL 與 API Key，再載入模型清單。",
-        "bankofaiModelsFailed": "載入 BANK OF AI 模型失敗：{{error}}",
+        "bankofaiModelsFailed": "載入 BAI 模型失敗：{{error}}",
         "protocol": "協定",
         "protocols": {
             "openaiCompletions": "OpenAI Completions",

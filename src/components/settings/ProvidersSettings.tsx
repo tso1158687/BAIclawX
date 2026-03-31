@@ -2,7 +2,7 @@
  * Providers Settings Component
  * Manage AI provider configurations and API keys
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   Plus,
   Trash2,
@@ -142,6 +142,7 @@ export function ProvidersSettings() {
   const [editingProvider, setEditingProvider] = useState<string | null>(null);
   const [agentWalletBoundModalOpen, setAgentWalletBoundModalOpen] = useState(false);
   const [agentWalletBoundModalType, setAgentWalletBoundModalType] = useState(0);
+  const [hasWalletBound, setHasWalletBound] = useState(false);
   const visibleAccounts = useMemo(() => filterVisibleProviderAccounts(accounts), [accounts]);
   const visibleStatuses = useMemo(() => filterVisibleProviderStatuses(statuses), [statuses]);
   const visibleVendors = useMemo(() => filterVisibleProviderVendors(vendors), [vendors]);
@@ -156,6 +157,30 @@ export function ProvidersSettings() {
   useEffect(() => {
     refreshProviderSnapshot();
   }, [refreshProviderSnapshot]);
+
+  // Pre-fetch wallet status on mount
+  const checkWalletStatus = useCallback(async () => {
+    try {
+      const data = await hostApiFetch<{
+        wallets?: { id: string }[];
+        vaultUnlockRequired?: boolean;
+        vaultTopologyIncomplete?: boolean;
+      }>('/api/agent-wallets');
+      const bound = Boolean(
+        data.vaultUnlockRequired ||
+        data.vaultTopologyIncomplete ||
+        (data.wallets && data.wallets.length > 0)
+      );
+      setHasWalletBound(bound);
+    } catch {
+      // If API fails, allow editing so the page stays usable
+      setHasWalletBound(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkWalletStatus();
+  }, [checkWalletStatus]);
 
   const handleAddProvider = async (
     type: ProviderType,
@@ -194,6 +219,12 @@ export function ProvidersSettings() {
   };
 
   const handleDeleteProvider = async (providerId: string) => {
+    // Use cached wallet status
+    if (hasWalletBound) {
+      setAgentWalletBoundModalType(2);
+      setAgentWalletBoundModalOpen(true);
+      return;
+    }
     try {
       const data = await hostApiFetch<{
         wallets?: { id: string }[];
@@ -234,23 +265,11 @@ export function ProvidersSettings() {
     //   setEditingProvider(accountId);
     //   return;
     // }
-    try {
-      const data = await hostApiFetch<{
-        wallets?: { id: string }[];
-        vaultUnlockRequired?: boolean;
-        vaultTopologyIncomplete?: boolean;
-      }>('/api/agent-wallets');
-      if (
-        data.vaultUnlockRequired
-        || data.vaultTopologyIncomplete
-        || (data.wallets && data.wallets.length > 0)
-      ) {
-        setAgentWalletBoundModalType(1);
-        setAgentWalletBoundModalOpen(true);
-        return;
-      }
-    } catch {
-      // If the wallet API fails, allow editing so the Models page stays usable.
+    // Use cached wallet status
+    if (hasWalletBound) {
+      setAgentWalletBoundModalType(1);
+      setAgentWalletBoundModalOpen(true);
+      return;
     }
     setEditingProvider(accountId);
   };
@@ -327,12 +346,12 @@ export function ProvidersSettings() {
           {t('settings:aiProviders.dialog.customViewPoints1')}
           {` `}
           <a
-            href={'https://chat.bankofai.io/usage'}
+            href={'https://chat.b.ai/usage'}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[13px] text-blue-500 hover:text-blue-600 font-medium inline-flex items-center gap-1"
           >
-            https://chat.bankofai.io/usage
+            https://chat.b.ai/usage
           </a>
           {` `}
           {t('settings:aiProviders.dialog.customViewPoints2')}
@@ -369,15 +388,7 @@ export function ProvidersSettings() {
             <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
               {t(agentWalletBoundModalType === 1 ? 'aiProviders.agentWalletBound.message' : 'aiProviders.agentWalletBound.message2')}
             </p>
-            <div className="mt-8 flex justify-between gap-3">
-              <Button
-                type="button"
-                variant="secondary"
-                className="flex-1 rounded-full h-11 font-medium bg-black/[0.06] dark:bg-white/10 text-foreground hover:bg-black/[0.1] dark:hover:bg-white/15 border-0 shadow-none"
-                onClick={() => setAgentWalletBoundModalOpen(false)}
-              >
-                {t('common:actions.cancel')}
-              </Button>
+            <div className="mt-8 flex justify-end gap-3">
               <Button
                 type="button"
                 className="flex-1 rounded-full h-11 font-medium bg-[#0a84ff] hover:bg-[#007aff] text-white shadow-sm border-0"

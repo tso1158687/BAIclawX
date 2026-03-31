@@ -30,7 +30,6 @@ async function syncGatewayConfigAndRestart(ctx: HostApiContext): Promise<void> {
   }
   await ctx.gatewayManager.restart();
 }
-
 export async function handleAgentWalletRoutes(
   req: IncomingMessage,
   res: ServerResponse,

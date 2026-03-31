@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { trackUiEvent } from '@/lib/telemetry';
 import { useProviderStore } from '@/stores/providers';
 import { hasConfiguredCredentials, pickPreferredAccount } from '@/lib/provider-accounts';
+import { brandHeadingStyle } from '@/lib/brand';
 import { CreateAgentWalletWizard } from './CreateAgentWalletWizard';
 import { useGatewayStore } from '@/stores/gateway';
 
@@ -34,6 +35,9 @@ export function Web3Settings() {
   const refreshProviderSnapshot = useProviderStore((s) => s.refreshProviderSnapshot);
   const { restart: restartGateway } = useGatewayStore();
 
+  const accountList = Array.isArray(accounts) ? accounts : [];
+  const statusList = Array.isArray(statuses) ? statuses : [];
+
   const [wallets, setWallets] = useState<AgentWalletRow[]>([]);
   const [vaultUnlockRequired, setVaultUnlockRequired] = useState(false);
   const [vaultTopologyIncomplete, setVaultTopologyIncomplete] = useState(false);
@@ -49,23 +53,23 @@ export function Web3Settings() {
   const walletListFetchGen = useRef(0);
 
   const statusById = useMemo(
-    () => new Map(statuses.map((s) => [s.id, s])),
-    [statuses],
+    () => new Map(statusList.map((s) => [s.id, s])),
+    [statusList],
   );
 
   const bankOfAiAccount = useMemo(
-    () => pickPreferredAccount(accounts, defaultAccountId, 'bankofai', statusById),
-    [accounts, defaultAccountId, statusById],
+    () => pickPreferredAccount(accountList, defaultAccountId, 'bankofai', statusById),
+    [accountList, defaultAccountId, statusById],
   );
 
   const bankOfAiAccountId = bankOfAiAccount?.id ?? '';
 
   const hasBankOfAiKey = useMemo(
     () =>
-      accounts.some(
+      accountList.some(
         (a) => a.vendorId === 'bankofai' && hasConfiguredCredentials(a, statusById.get(a.id)),
       ),
-    [accounts, statusById],
+    [accountList, statusById],
   );
 
   const displayWallet = useMemo(() => {
@@ -174,14 +178,12 @@ export function Web3Settings() {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-foreground tracking-tight mb-4">
+      <h2 className="text-3xl font-serif text-foreground mb-6 font-normal tracking-tight" style={brandHeadingStyle}>
         {t('web3.sectionTitle')}
       </h2>
 
       <div
         className={cn(
-          'rounded-2xl border border-black/[0.08] dark:border-white/[0.1]',
-          'bg-white dark:bg-card shadow-sm',
           'flex flex-col gap-4 px-5 py-4 sm:px-6 sm:flex-row sm:items-center',
         )}
       >
