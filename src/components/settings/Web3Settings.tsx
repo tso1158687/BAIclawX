@@ -45,6 +45,7 @@ export function Web3Settings() {
   const [walletsLoading, setWalletsLoading] = useState(true);
   const [providersReady, setProvidersReady] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
+  const [showBankOfAiKeyWarning, setShowBankOfAiKeyWarning] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AgentWalletRow | null>(null);
   const [unlockPassword, setUnlockPassword] = useState('');
   const [unlockSubmitting, setUnlockSubmitting] = useState(false);
@@ -59,7 +60,7 @@ export function Web3Settings() {
   );
 
   const bankOfAiAccount = useMemo(
-    () => pickPreferredAccount(accountList, defaultAccountId, 'bankofai', statusById),
+    () => pickPreferredAccount(accountList, defaultAccountId, 'bai', statusById),
     [accountList, defaultAccountId, statusById],
   );
 
@@ -68,7 +69,7 @@ export function Web3Settings() {
   const hasBankOfAiKey = useMemo(
     () =>
       accountList.some(
-        (a) => a.vendorId === 'bankofai' && hasConfiguredCredentials(a, statusById.get(a.id)),
+        (a) => a.vendorId === 'bai' && hasConfiguredCredentials(a, statusById.get(a.id)),
       ),
     [accountList, statusById],
   );
@@ -147,6 +148,12 @@ export function Web3Settings() {
     void refreshWallets();
   }, [refreshWallets]);
 
+  useEffect(() => {
+    if (hasBankOfAiKey) {
+      setShowBankOfAiKeyWarning(false);
+    }
+  }, [hasBankOfAiKey]);
+
   const copyAddress = async (address: string) => {
     try {
       await navigator.clipboard.writeText(address);
@@ -175,10 +182,21 @@ export function Web3Settings() {
   const loading = walletsLoading || providersLoading || !providersReady;
   const canOpenWizard =
     providersReady
-    && hasBankOfAiKey
     && Boolean(bankOfAiAccountId)
     && !walletsLoading
     && !vaultUnlockRequired;
+
+  const handleOpenWizard = useCallback(() => {
+    if (!hasBankOfAiKey) {
+      setShowBankOfAiKeyWarning(true);
+      return;
+    }
+    if (!canOpenWizard) {
+      return;
+    }
+    setShowBankOfAiKeyWarning(false);
+    setShowWizard(true);
+  }, [canOpenWizard, hasBankOfAiKey]);
 
   return (
     <div>
@@ -271,8 +289,8 @@ export function Web3Settings() {
           {!displayWallet && !loading && !vaultUnlockRequired ? (
             <Button
               type="button"
-              onClick={() => setShowWizard(true)}
-              disabled={!canOpenWizard}
+              onClick={handleOpenWizard}
+              disabled={!providersReady || walletsLoading}
               className={cn(
                 'rounded-full h-10 px-5 gap-2 font-medium shadow-sm',
                 'bg-[#0a84ff] hover:bg-[#007aff] text-white',
@@ -316,7 +334,7 @@ export function Web3Settings() {
         </p>
       ) : null}
 
-      {providersReady && !displayWallet && !walletsLoading && !vaultUnlockRequired && !hasBankOfAiKey ? (
+      {providersReady && !displayWallet && !walletsLoading && !vaultUnlockRequired && showBankOfAiKeyWarning && !hasBankOfAiKey ? (
         <p className="mt-2 text-left text-[13px] text-red-600 dark:text-red-500 leading-snug max-w-full sm:ml-[0%]">
           {t('web3.bankOfAiKeyWarning')}
         </p>
