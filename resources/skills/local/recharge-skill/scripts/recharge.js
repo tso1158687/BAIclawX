@@ -79,7 +79,8 @@ async function main() {
       process.stdout.write(
         `settlement_status=${result.normalized.settlement_status || "unknown"} `
         + `transaction_hash=${result.normalized.transaction_hash || "n/a"} `
-        + `token=${result.normalized.token} amount=${result.normalized.amount}\n`,
+        + `token=${result.normalized.token} amount=${result.normalized.amount} `
+        + `post_balance=${result.normalized.post_balance ?? "pending"}\n`,
       );
       return;
     }

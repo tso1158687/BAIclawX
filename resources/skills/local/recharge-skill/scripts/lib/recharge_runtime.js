@@ -18,6 +18,8 @@ const X402_MODULE_PATH = path.join(X402_PAYMENT_ROOT, "node_modules", "@bankofai
 const X402_AGENT_WALLET_PATH = path.join(X402_PAYMENT_ROOT, "node_modules", "@bankofai", "agent-wallet", "dist", "index.js");
 const DEFAULT_RECHARGE_URL = "https://recharge.bankofai.io/mcp";
 const DEFAULT_WALLET_DIR = path.join(os.homedir(), ".openclaw", "agent-wallet-baiclaw");
+const DEFAULT_BALANCE_TIMEOUT_MS = 10_000;
+const POST_RECHARGE_BALANCE_RETRY_MS = [0, 1500, 3000];
 
 function loadJson(filePath) {
   try {
@@ -111,6 +113,104 @@ function normalizeMcpToolResult(body, fallbackToken, fallbackAmount) {
     amount: structured && structured.amount || String(fallbackAmount),
     raw: body,
     text: textContent || null,
+  };
+}
+
+function shouldFetchPostRechargeBalance(normalized) {
+  const status = String(normalized && normalized.settlement_status || "").trim().toLowerCase();
+  return ["paid", "settled", "success", "completed"].includes(status);
+}
+
+function trpcInput() {
+  return encodeURIComponent(
+    JSON.stringify({
+      0: {
+        json: null,
+        meta: { values: ["undefined"], v: 1 },
+      },
+    }),
+  );
+}
+
+async function fetchJson(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    const text = await response.text();
+    let data = null;
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch (_) {
+      data = { raw: text };
+    }
+    return { ok: response.ok, status: response.status, data };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function parsePointsBalanceFromTrpcResult(userResult) {
+  if (!userResult || !userResult.ok) {
+    return null;
+  }
+
+  const item = Array.isArray(userResult.data) ? userResult.data[0] : userResult.data;
+  const payload = item && item.result && item.result.data ? item.result.data : {};
+  const resolved = payload && payload.json ? payload.json : payload;
+  const pointsBalance = resolved && resolved.points_balance;
+
+  return Number.isFinite(pointsBalance) ? pointsBalance : null;
+}
+
+async function queryUserBalance(config) {
+  if (!config.apiKey) {
+    throw new Error("missing BANKOFAI_API_KEY or bankofai-config.json api_key");
+  }
+
+  const url = `${config.baseUrl}/trpc/lambda/usage.points?batch=1&input=${trpcInput()}`;
+  return fetchJson(
+    url,
+    {
+      headers: {
+        Accept: "*/*",
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+    },
+    config.timeoutMs || DEFAULT_BALANCE_TIMEOUT_MS,
+  );
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchPostRechargeBalance(overrides = {}) {
+  const config = getConfig(overrides);
+  for (let index = 0; index < POST_RECHARGE_BALANCE_RETRY_MS.length; index += 1) {
+    const waitMs = POST_RECHARGE_BALANCE_RETRY_MS[index];
+    if (waitMs > 0) {
+      await sleep(waitMs);
+    }
+
+    const userResult = await queryUserBalance(config);
+    const pointsBalance = parsePointsBalanceFromTrpcResult(userResult);
+    if (pointsBalance !== null) {
+      return {
+        ok: true,
+        points_balance: pointsBalance,
+        unit: "points",
+        http_status: userResult.status,
+        attempts: index + 1,
+      };
+    }
+  }
+
+  return {
+    ok: false,
+    points_balance: null,
+    unit: "points",
+    attempts: POST_RECHARGE_BALANCE_RETRY_MS.length,
   };
 }
 
@@ -220,10 +320,21 @@ async function invokeRechargeMcp({ amount, token, url = DEFAULT_RECHARGE_URL }) 
     sessionId ? { "mcp-session-id": sessionId } : {},
   );
 
+  const normalized = normalizeMcpToolResult(toolResponse.body, String(token).toUpperCase(), amount);
+  const postBalance = shouldFetchPostRechargeBalance(normalized)
+    ? await fetchPostRechargeBalance()
+    : null;
+
   return {
     initialize: initResponse,
     recharge: toolResponse,
-    normalized: normalizeMcpToolResult(toolResponse.body, String(token).toUpperCase(), amount),
+    normalized: {
+      ...normalized,
+      post_balance: postBalance && postBalance.ok ? postBalance.points_balance : null,
+      post_balance_unit: postBalance ? postBalance.unit : null,
+      balance_refresh_pending: Boolean(postBalance) && !postBalance.ok,
+    },
+    post_balance: postBalance,
   };
 }
 
@@ -235,5 +346,9 @@ module.exports = {
   getStoredWalletPassword,
   getWalletEnv,
   invokeRechargeMcp,
+  parsePointsBalanceFromTrpcResult,
+  queryUserBalance,
+  fetchPostRechargeBalance,
   normalizeMcpToolResult,
+  shouldFetchPostRechargeBalance,
 };

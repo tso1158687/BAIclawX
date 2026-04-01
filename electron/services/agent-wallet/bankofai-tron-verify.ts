@@ -5,7 +5,7 @@ type VerifyResponse = {
 };
 
 /**
- * Validate BANK OF AI api key for a wallet address.
+ * Validate a BAI API key for a wallet address.
  * Only `{ "valid": true }` is considered success.
  */
 export async function verifyBankOfAiApiKeyByWalletAddress(

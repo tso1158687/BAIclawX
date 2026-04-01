@@ -1,6 +1,6 @@
 ---
 name: recharge-skill
-description: "BANK OF AI account query and recharge skill. Use for requests like 'recharge 1 usdt', '给 BANK OF AI 充值 1 USDT', or to query BANK OF AI balance/orders. Recharge uses the remote MCP endpoint https://recharge.bankofai.io/mcp with the single `recharge` tool."
+description: "BAI account query and recharge skill. Use for requests like 'recharge 1 usdt', '给 BAI 充值 1 USDT', '幫 BAI 儲值 1 USDT', or to query BAI balance/orders. Recharge uses the remote MCP endpoint https://recharge.bankofai.io/mcp with the single `recharge` tool."
 version: 1.1.1
 dependencies:
   - node >= 18.0.0
@@ -17,23 +17,27 @@ tags:
 
 # Recharge Skill
 
-This skill owns the local BANK OF AI account query layer and the remote BANK OF AI recharge flow. The server must not store the user's account API key.
+This skill owns the local BAI account query layer and the remote BAI recharge flow. The server must not store the user's account API key.
 
 ## When To Use
 
 Use this skill for requests such as:
 
 - `recharge 1 usdt`
-- `recharge my BANK OF AI account with 1 usdt`
-- Chinese requests such as `给 BANK OF AI 充值 1 USDT`
-- Chinese requests such as `通过 https://recharge.bankofai.io/mcp 给 BANK OF AI 充值 1 usdt`
-- `check my BANK OF AI balance`
-- `list my BANK OF AI orders`
+- `recharge my BAI account with 1 usdt`
+- Chinese requests such as `给 BAI 充值 1 USDT`
+- Chinese requests such as `通过 https://recharge.bankofai.io/mcp 给 BAI 充值 1 usdt`
+- Traditional Chinese requests such as `幫 BAI 儲值 1 USDT`
+- Traditional Chinese requests such as `透過 https://recharge.bankofai.io/mcp 幫 BAI 儲值 1 USDT`
+- Traditional Chinese requests such as `查詢我的 BAI 餘額`
+- Traditional Chinese requests such as `列出我最近的 BAI 訂單`
+- `check my BAI balance`
+- `list my BAI orders`
 
 ## Scope
 
-- The BANK OF AI API key is managed by the local agent / skill.
-- Balance and order queries should call BANK OF AI directly from local scripts.
+- The BAI API key is managed by the local agent / skill.
+- Balance and order queries should call BAI directly from local scripts.
 - Recharge and payment flows should use the remote MCP endpoint `https://recharge.bankofai.io/mcp`.
 - Use the MCP tool `recharge` for all supported recharge routes such as `USDT`.
 - Do not use native `TRX` recharge flows from this skill.
@@ -49,7 +53,7 @@ Return the settlement status, transaction hash, token, and amount to the user af
 
 ## Local Configuration
 
-This skill is configured for BANK OF AI production.
+This skill is configured for BAI production.
 
 Resolution order:
 

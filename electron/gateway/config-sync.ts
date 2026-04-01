@@ -365,7 +365,7 @@ async function loadProviderEnv(): Promise<{ providerEnv: Record<string, string>;
     }
   }
 
-  // Compatibility shim for legacy/local BANK OF AI skills that still expect
+  // Compatibility shim for legacy/local BAI skills that still expect
   // fixed BANKOFAI_* env vars instead of account-scoped provider ids.
   try {
     const bankOfAiEnvVar = getProviderEnvVar('bankofai');
@@ -382,7 +382,7 @@ async function loadProviderEnv(): Promise<{ providerEnv: Record<string, string>;
       }
     }
   } catch (err) {
-    logger.warn('Failed to load compatibility BANK OF AI environment:', err);
+    logger.warn('Failed to load compatibility BAI environment:', err);
   }
 
   return { providerEnv, loadedProviderKeyCount };

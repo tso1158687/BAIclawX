@@ -364,7 +364,7 @@ export type ValidateTronKeyResult = {
   ok: boolean;
   errorCode?: 'FORMAT' | 'NOT_TRON' | 'MISMATCH' | 'NO_API_KEY';
   derivedAddress?: string;
-  /** When true, BANK OF AI did not return a linked address — binding is not enforced */
+  /** When true, BAI did not return a linked address — binding is not enforced */
   bindingSkipped?: boolean;
 };
 

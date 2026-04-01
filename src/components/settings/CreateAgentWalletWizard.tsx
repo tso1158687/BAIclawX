@@ -1,5 +1,5 @@
 /**
- * Four-step AgentWallet creation wizard (TRON + BANK OF AI binding + master password).
+ * Four-step AgentWallet creation wizard (TRON + BAI binding + master password).
  */
 import { useCallback, useState } from 'react';
 import {

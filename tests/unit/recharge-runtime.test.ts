@@ -73,4 +73,25 @@ describe('recharge runtime compatibility', () => {
     expect(requestEnv.BANKOFAI_BASE_URL).toBe('https://chat.ainft.com');
     expect(requestEnv.AGENT_WALLET_PASSWORD).toBe('vault-secret-password');
   });
+
+  it('only requests post-recharge balance for settled payments and parses points balance', async () => {
+    const shouldFetch = await evaluateExpression(
+      'runtime.shouldFetchPostRechargeBalance({ settlement_status: "paid" })',
+    );
+    expect(shouldFetch).toBe(true);
+
+    const shouldSkip = await evaluateExpression(
+      'runtime.shouldFetchPostRechargeBalance({ settlement_status: "pending" })',
+    );
+    expect(shouldSkip).toBe(false);
+
+    const pointsBalance = await evaluateExpression(
+      `runtime.parsePointsBalanceFromTrpcResult({
+        ok: true,
+        status: 200,
+        data: [{ result: { data: { json: { points_balance: 123456 } } } }],
+      })`,
+    );
+    expect(pointsBalance).toBe(123456);
+  });
 });
