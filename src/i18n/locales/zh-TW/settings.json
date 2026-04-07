@@ -92,7 +92,7 @@
         "example1": "幫我算算 100 USDT 在 SunSwap 上能換多少 TRX？",
         "example2": "我的 BAI 帳戶還有多少餘額？",
         "example3": "顯示我最近的 BAI 訂單。",
-        "example4": "幫 BAI 充值 1 USDT。",
+        "example4": "幫 BAI 儲值 1 USDT。",
         "learnSkills": "了解更多 BAI Web3 技能",
         "skillsUrl": "https://docs.bankofai.io/zh-Hans/McpServer-Skills/SKILLS/Intro/"
       },
