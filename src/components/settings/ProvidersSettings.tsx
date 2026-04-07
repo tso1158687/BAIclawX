@@ -2,7 +2,7 @@
  * Providers Settings Component
  * Manage AI provider configurations and API keys
  */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   Plus,
   Trash2,
@@ -140,6 +140,10 @@ export function ProvidersSettings() {
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingProvider, setEditingProvider] = useState<string | null>(null);
+  const [agentWalletBoundModalOpen, setAgentWalletBoundModalOpen] = useState(false);
+  const [agentWalletBoundModalType, setAgentWalletBoundModalType] = useState(0);
+  const [walletCheckLoading, setWalletCheckLoading] = useState(true);
+  const [hasWalletBound, setHasWalletBound] = useState(false);
   const visibleAccounts = useMemo(() => filterVisibleProviderAccounts(accounts), [accounts]);
   const visibleStatuses = useMemo(() => filterVisibleProviderStatuses(statuses), [statuses]);
   const visibleVendors = useMemo(() => filterVisibleProviderVendors(vendors), [vendors]);
@@ -154,6 +158,33 @@ export function ProvidersSettings() {
   useEffect(() => {
     refreshProviderSnapshot();
   }, [refreshProviderSnapshot]);
+
+  // Pre-fetch wallet status on mount
+  const checkWalletStatus = useCallback(async () => {
+    setWalletCheckLoading(true);
+    try {
+      const data = await hostApiFetch<{
+        wallets?: { id: string }[];
+        vaultUnlockRequired?: boolean;
+        vaultTopologyIncomplete?: boolean;
+      }>('/api/agent-wallets');
+      const bound = Boolean(
+        data.vaultUnlockRequired ||
+        data.vaultTopologyIncomplete ||
+        (data.wallets && data.wallets.length > 0)
+      );
+      setHasWalletBound(bound);
+    } catch {
+      // If API fails, allow editing so the page stays usable
+      setHasWalletBound(false);
+    } finally {
+      setWalletCheckLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkWalletStatus();
+  }, [checkWalletStatus]);
 
   const handleAddProvider = async (
     type: ProviderType,
@@ -192,6 +223,12 @@ export function ProvidersSettings() {
   };
 
   const handleDeleteProvider = async (providerId: string) => {
+    // Use cached wallet status
+    if (hasWalletBound) {
+      setAgentWalletBoundModalType(2);
+      setAgentWalletBoundModalOpen(true);
+      return;
+    }
     try {
       await removeAccount(providerId);
       toast.success(t('aiProviders.toast.deleted'));
@@ -207,6 +244,20 @@ export function ProvidersSettings() {
     } catch (error) {
       toast.error(`${t('aiProviders.toast.failedDefault')}: ${error}`);
     }
+  };
+
+  const handleRequestEdit = async (accountId: string, _vendorId: string) => {
+    // if (vendorId !== 'bankofai') {
+    //   setEditingProvider(accountId);
+    //   return;
+    // }
+    // Use cached wallet status
+    if (hasWalletBound) {
+      setAgentWalletBoundModalType(1);
+      setAgentWalletBoundModalOpen(true);
+      return;
+    }
+    setEditingProvider(accountId);
   };
 
   return (
@@ -246,7 +297,7 @@ export function ProvidersSettings() {
               allProviders={displayProviders}
               isDefault={item.account.id === defaultAccountId}
               isEditing={editingProvider === item.account.id}
-              onEdit={() => setEditingProvider(item.account.id)}
+              onEdit={() => void handleRequestEdit(item.account.id, item.account.vendorId)}
               onCancelEdit={() => setEditingProvider(null)}
               onDelete={() => handleDeleteProvider(item.account.id)}
               onSetDefault={() => handleSetDefault(item.account.id)}
@@ -305,6 +356,36 @@ export function ProvidersSettings() {
           devModeUnlocked={devModeUnlocked}
         />
       )}
+
+      {agentWalletBoundModalOpen ? (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="agent-wallet-bound-title"
+        >
+          <div className="w-full max-w-[420px] rounded-3xl bg-white dark:bg-card shadow-xl border border-black/[0.06] dark:border-white/10 p-6">
+            <h2
+              id="agent-wallet-bound-title"
+              className="text-[17px] font-bold text-foreground tracking-tight"
+            >
+              {t('aiProviders.agentWalletBound.title')}
+            </h2>
+            <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">
+              {t(agentWalletBoundModalType === 1 ? 'aiProviders.agentWalletBound.message' : 'aiProviders.agentWalletBound.message2')}
+            </p>
+            <div className="mt-8 flex justify-end gap-3">
+              <Button
+                type="button"
+                className="flex-1 rounded-full h-11 font-medium bg-[#0a84ff] hover:bg-[#007aff] text-white shadow-sm border-0"
+                onClick={() => setAgentWalletBoundModalOpen(false)}
+              >
+                {t('aiProviders.agentWalletBound.gotIt')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
